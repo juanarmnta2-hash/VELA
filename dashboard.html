@@ -26,7 +26,10 @@
   .card-label{font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
   .balance{font-family:var(--mono);font-weight:600;font-size:clamp(30px,5vw,42px);color:#fff;margin-top:10px}
   .balance small{font-size:20px;color:var(--muted)}
+  .balance-row{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;position:relative}
   .balance-tag{display:inline-block;margin-top:12px;font-family:var(--mono);font-size:11.5px;color:var(--gold);border:1px solid rgba(232,176,75,.3);padding:5px 11px;border-radius:100px}
+  .dep-btn{background:var(--gold);color:var(--ink);font-family:var(--body);font-weight:600;font-size:14.5px;padding:12px 24px;border:none;border-radius:10px;cursor:pointer;transition:.2s;display:inline-flex;align-items:center;gap:8px;box-shadow:0 6px 20px rgba(232,176,75,.22)}
+  .dep-btn:hover{background:var(--gold-2);transform:translateY(-1px)}
   .markets{margin-top:38px}
   .mk-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px}
   .mk-title{font-family:var(--display);font-weight:600;font-size:20px;color:#fff}
@@ -40,18 +43,47 @@
   .row:last-child{border-bottom:none}
   .row.head{background:var(--ink-3);padding:12px 22px}
   .row.head span{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
-  .row:not(.head):hover{background:var(--ink-3)}
+  .row.data{cursor:pointer}
+  .row.data:hover{background:var(--ink-3)}
   .asset{display:flex;flex-direction:column;gap:3px}
   .asset .sym{font-family:var(--display);font-weight:600;font-size:16px;color:#fff}
   .asset .name{font-size:12.5px;color:var(--muted)}
+  .rowend{display:flex;align-items:center;gap:14px}
   .right{text-align:right;display:flex;flex-direction:column;gap:3px;min-width:120px}
   .price{font-family:var(--mono);font-weight:600;font-size:16px;color:var(--text)}
   .chg{font-family:var(--mono);font-size:12.5px}
   .chg.up{color:var(--up)}
   .chg.down{color:var(--down)}
+  .chev{color:var(--muted);font-size:20px;font-family:var(--body)}
   .skeleton{color:var(--muted);font-family:var(--mono);font-size:13px}
   .soon-line{margin-top:14px;font-size:12.5px;color:var(--muted);text-align:center}
-  @media(max-width:820px){.who{display:none}.wrap{padding:30px 18px}.row{padding:14px 16px}.right{min-width:100px}}
+  .modal{position:fixed;inset:0;background:rgba(5,8,14,.82);backdrop-filter:blur(6px);z-index:50;display:none;align-items:center;justify-content:center;padding:20px}
+  .modal.open{display:flex}
+  .modal-box{width:100%;max-width:1000px;height:82vh;background:var(--ink-2);border:1px solid var(--line);border-radius:16px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 40px 100px -30px rgba(0,0,0,.9)}
+  .modal-head{display:flex;align-items:center;justify-content:space-between;padding:16px 22px;border-bottom:1px solid var(--line)}
+  .m-left{display:flex;align-items:baseline;gap:12px}
+  .m-sym{font-family:var(--display);font-weight:600;font-size:19px;color:#fff}
+  .m-name{font-size:13px;color:var(--muted)}
+  .m-close{background:transparent;border:1px solid var(--line);color:var(--text);width:36px;height:36px;border-radius:9px;cursor:pointer;font-size:16px;transition:.2s}
+  .m-close:hover{border-color:var(--down);color:var(--down)}
+  .tv-wrap{flex:1;min-height:0}
+  #tv_chart{width:100%;height:100%}
+  /* deposito */
+  .dbox{width:100%;max-width:430px;background:linear-gradient(180deg,var(--ink-2),var(--ink));border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:0 40px 100px -30px rgba(0,0,0,.9)}
+  .dbody{padding:26px 26px 24px}
+  .dnote{display:inline-block;font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--gold);border:1px solid rgba(232,176,75,.3);padding:5px 11px;border-radius:100px;margin-bottom:20px}
+  .dlabel{display:block;font-size:12.5px;color:var(--muted);margin-bottom:9px}
+  .damount{display:flex;align-items:center;background:var(--ink);border:1px solid var(--line);border-radius:11px;padding:4px 16px;transition:.2s}
+  .damount:focus-within{border-color:var(--gold)}
+  .dcur{font-family:var(--mono);font-size:20px;color:var(--muted)}
+  #d-input{flex:1;background:transparent;border:none;outline:none;color:#fff;font-family:var(--mono);font-weight:600;font-size:22px;padding:12px 8px}
+  .dchips{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+  .dchip{font-family:var(--mono);font-size:12.5px;color:var(--text);background:var(--ink-3);border:1px solid var(--line);padding:8px 13px;border-radius:8px;cursor:pointer;transition:.2s}
+  .dchip:hover{border-color:var(--gold);color:var(--gold)}
+  .dbtn{width:100%;margin-top:20px;background:var(--gold);color:var(--ink);font-family:var(--body);font-weight:600;font-size:15px;padding:14px;border:none;border-radius:10px;cursor:pointer;transition:.2s}
+  .dbtn:hover{background:var(--gold-2)}
+  .dfoot{font-size:11.5px;color:var(--muted);line-height:1.6;margin-top:18px;padding-top:16px;border-top:1px solid var(--line)}
+  @media(max-width:820px){.who{display:none}.wrap{padding:30px 18px}.row{padding:14px 16px}.right{min-width:100px}.modal-box{height:88vh}}
 </style>
 </head>
 <body>
@@ -69,8 +101,13 @@
 
   <div class="balance-card">
     <div class="card-label">Saldo de práctica</div>
-    <div class="balance">$100,000<small>.00</small></div>
-    <span class="balance-tag">Fondos de práctica · listos para operar</span>
+    <div class="balance-row">
+      <div>
+        <div class="balance" id="balance">$100,000<small>.00</small></div>
+        <span class="balance-tag">Fondos de práctica · listos para operar</span>
+      </div>
+      <button class="dep-btn" id="open-deposit">＋ Depositar</button>
+    </div>
   </div>
 
   <div class="markets">
@@ -85,7 +122,41 @@
       <div class="row head"><span>Activo</span><span>Precio / Variación</span></div>
       <div class="row"><div class="skeleton">Cargando precios reales...</div></div>
     </div>
-    <p class="soon-line">Próximamente: al tocar un activo verás su gráfico de velas y el análisis con IA.</p>
+    <p class="soon-line">Toca cualquier activo para ver su gráfico de velas en tiempo real.</p>
+  </div>
+</div>
+
+<!-- Modal gráfico -->
+<div class="modal" id="modal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div class="m-left"><span class="m-sym" id="m-sym"></span><span class="m-name" id="m-name"></span></div>
+      <button class="m-close" id="m-close">✕</button>
+    </div>
+    <div class="tv-wrap"><div class="tradingview-widget-container" id="tv_chart"></div></div>
+  </div>
+</div>
+
+<!-- Modal depósito -->
+<div class="modal" id="deposit">
+  <div class="dbox">
+    <div class="modal-head">
+      <div class="m-left"><span class="m-sym">Fondear cuenta</span></div>
+      <button class="m-close" id="d-close">✕</button>
+    </div>
+    <div class="dbody">
+      <span class="dnote">● Fondos de práctica · simulación</span>
+      <label class="dlabel">Monto a agregar</label>
+      <div class="damount"><span class="dcur">$</span><input id="d-input" type="number" inputmode="numeric" placeholder="5,000"></div>
+      <div class="dchips">
+        <button class="dchip" data-v="1000">$1,000</button>
+        <button class="dchip" data-v="5000">$5,000</button>
+        <button class="dchip" data-v="10000">$10,000</button>
+        <button class="dchip" data-v="50000">$50,000</button>
+      </div>
+      <button class="dbtn" id="d-add">Agregar fondos</button>
+      <p class="dfoot">En una versión de producción operada por una institución con licencia, este es el punto donde se integra el procesador de pagos regulado y la custodia de fondos. En esta demostración el saldo es de práctica.</p>
+    </div>
   </div>
 </div>
 
@@ -106,12 +177,38 @@
     window.location.href='index.html';
   });
 
+  // ===== Saldo + depósito (práctica) =====
+  let balance = 100000;
+  function renderBalance(){
+    const s = balance.toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2});
+    const p = s.split('.');
+    document.getElementById('balance').innerHTML = '$'+p[0]+'<small>.'+p[1]+'</small>';
+  }
+  renderBalance();
+  function openDeposit(){ document.getElementById('deposit').classList.add('open'); }
+  function closeDeposit(){ document.getElementById('deposit').classList.remove('open'); document.getElementById('d-input').value=''; }
+  document.getElementById('open-deposit').addEventListener('click', openDeposit);
+  document.getElementById('d-close').addEventListener('click', closeDeposit);
+  document.getElementById('deposit').addEventListener('click', function(e){ if(e.target.id==='deposit') closeDeposit(); });
+  document.querySelectorAll('.dchip').forEach(function(c){
+    c.addEventListener('click', function(){ document.getElementById('d-input').value = c.getAttribute('data-v'); });
+  });
+  document.getElementById('d-add').addEventListener('click', function(){
+    const v = Number(document.getElementById('d-input').value);
+    if(!v || v<=0){ return; }
+    balance += v;
+    renderBalance();
+    closeDeposit();
+  });
+
+  // ===== Mercados (Finnhub) =====
   const FINNHUB_KEY = "d94p3e9r01qq8ms5kd90d94p3e9r01qq8ms5kd9g";
   const SYMBOLS = [
-    ["AAPL","Apple Inc."],["MSFT","Microsoft"],["NVDA","NVIDIA"],
-    ["TSLA","Tesla"],["AMZN","Amazon"],["META","Meta Platforms"],
-    ["GOOGL","Alphabet"],["AMD","Advanced Micro Devices"],
-    ["NFLX","Netflix"],["JPM","JPMorgan Chase"]
+    ["AAPL","Apple Inc.","NASDAQ:AAPL"],["MSFT","Microsoft","NASDAQ:MSFT"],
+    ["NVDA","NVIDIA","NASDAQ:NVDA"],["TSLA","Tesla","NASDAQ:TSLA"],
+    ["AMZN","Amazon","NASDAQ:AMZN"],["META","Meta Platforms","NASDAQ:META"],
+    ["GOOGL","Alphabet","NASDAQ:GOOGL"],["AMD","Advanced Micro Devices","NASDAQ:AMD"],
+    ["NFLX","Netflix","NASDAQ:NFLX"],["JPM","JPMorgan Chase","NYSE:JPM"]
   ];
   function fmt(n){ return Number(n).toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2}); }
   async function fetchQuote(sym){
@@ -121,23 +218,30 @@
   }
   function render(rows){
     let html = '<div class="row head"><span>Activo</span><span>Precio / Variación</span></div>';
-    for(const {sym,name,q} of rows){
+    for(const {sym,name,tv,q} of rows){
+      const attrs = 'data-sym="'+sym+'" data-name="'+name+'" data-tv="'+tv+'"';
       if(!q || (q.c===0 && q.pc===0)){
-        html += '<div class="row"><div class="asset"><span class="sym">'+sym+'</span><span class="name">'+name+'</span></div><div class="right"><span class="price">—</span><span class="chg">sin dato</span></div></div>';
+        html += '<div class="row data" '+attrs+'><div class="asset"><span class="sym">'+sym+'</span><span class="name">'+name+'</span></div><div class="rowend"><div class="right"><span class="price">—</span><span class="chg">sin dato</span></div><span class="chev">›</span></div></div>';
         continue;
       }
       const dp = q.dp==null?0:q.dp, d = q.d==null?0:q.d;
       const up = dp >= 0, arrow = up?'▲':'▼', cls = up?'up':'down';
-      html += '<div class="row"><div class="asset"><span class="sym">'+sym+'</span><span class="name">'+name+'</span></div><div class="right"><span class="price">$'+fmt(q.c)+'</span><span class="chg '+cls+'">'+arrow+' '+fmt(Math.abs(d))+' ('+(up?'+':'')+fmt(dp)+'%)</span></div></div>';
+      html += '<div class="row data" '+attrs+'><div class="asset"><span class="sym">'+sym+'</span><span class="name">'+name+'</span></div><div class="rowend"><div class="right"><span class="price">$'+fmt(q.c)+'</span><span class="chg '+cls+'">'+arrow+' '+fmt(Math.abs(d))+' ('+(up?'+':'')+fmt(dp)+'%)</span></div><span class="chev">›</span></div></div>';
     }
-    document.getElementById('table').innerHTML = html;
+    const table = document.getElementById('table');
+    table.innerHTML = html;
+    table.querySelectorAll('.row.data').forEach(function(el){
+      el.addEventListener('click', function(){
+        openChart(el.getAttribute('data-sym'), el.getAttribute('data-name'), el.getAttribute('data-tv'));
+      });
+    });
   }
   async function loadMarkets(){
     try{
-      const rows = await Promise.all(SYMBOLS.map(async function(pair){
-        const sym=pair[0], name=pair[1];
-        try{ const q = await fetchQuote(sym); return {sym:sym,name:name,q:q}; }
-        catch(e){ return {sym:sym,name:name,q:null}; }
+      const rows = await Promise.all(SYMBOLS.map(async function(t){
+        const sym=t[0], name=t[1], tv=t[2];
+        try{ const q = await fetchQuote(sym); return {sym:sym,name:name,tv:tv,q:q}; }
+        catch(e){ return {sym:sym,name:name,tv:tv,q:null}; }
       }));
       render(rows);
       document.getElementById('updated').textContent = 'Actualizado ' + new Date().toLocaleTimeString('es-MX');
@@ -147,6 +251,33 @@
   }
   loadMarkets();
   setInterval(loadMarkets, 20000);
+
+  // ===== Gráfico (TradingView) =====
+  function openChart(sym,name,tv){
+    document.getElementById('m-sym').textContent = sym;
+    document.getElementById('m-name').textContent = name;
+    document.getElementById('modal').classList.add('open');
+    const container = document.getElementById('tv_chart');
+    container.innerHTML = '<div class="tradingview-widget-container__widget" style="height:100%;width:100%"></div>';
+    const s = document.createElement('script');
+    s.type = 'text/javascript';
+    s.src = 'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js';
+    s.async = true;
+    s.innerHTML = JSON.stringify({
+      autosize:true, symbol:tv, interval:'D', timezone:'America/Mexico_City',
+      theme:'dark', style:'1', locale:'es', hide_side_toolbar:false,
+      allow_symbol_change:false, backgroundColor:'#0A0E17', gridColor:'rgba(32,41,60,0.5)'
+    });
+    container.appendChild(s);
+  }
+  function closeChart(){
+    document.getElementById('modal').classList.remove('open');
+    document.getElementById('tv_chart').innerHTML='';
+  }
+  document.getElementById('m-close').addEventListener('click', closeChart);
+  document.getElementById('modal').addEventListener('click', function(e){
+    if(e.target.id==='modal') closeChart();
+  });
 </script>
 </body>
 </html>
