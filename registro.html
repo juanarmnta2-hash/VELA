@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Crear cuenta — VELA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{--ink:#0A0E17;--ink-2:#0F1522;--line:#20293C;--text:#E7E9EF;--muted:#8A93A6;--gold:#E8B04B;--gold-2:#F2C86A;--up:#4FD1A8;--down:#E06C6C;--display:'Space Grotesk',sans-serif;--body:'Inter',sans-serif;--mono:'JetBrains Mono',monospace}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--ink);color:var(--text);font-family:var(--body);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;position:relative;overflow:hidden}
+  .glow{position:fixed;top:-160px;right:-120px;width:560px;height:560px;background:radial-gradient(circle,rgba(232,176,75,.12),transparent 62%);pointer-events:none}
+  .card{width:100%;max-width:430px;background:linear-gradient(180deg,var(--ink-2),var(--ink));border:1px solid var(--line);border-radius:18px;padding:38px 32px;position:relative;box-shadow:0 30px 80px -30px rgba(0,0,0,.8)}
+  .logo{font-family:var(--display);font-weight:700;font-size:22px;letter-spacing:.14em;display:flex;align-items:center;gap:10px;justify-content:center;margin-bottom:26px}
+  .logo-mark{width:13px;height:21px;border-radius:3px;background:linear-gradient(180deg,var(--gold-2),var(--gold));box-shadow:0 0 20px rgba(232,176,75,.45)}
+  h1{font-family:var(--display);font-weight:600;font-size:24px;color:#fff;text-align:center;letter-spacing:-.01em}
+  .sub{font-size:14.5px;color:var(--muted);text-align:center;margin:10px 0 26px}
+  label{display:block;font-size:12.5px;color:var(--muted);margin:0 0 7px;letter-spacing:.02em}
+  input{width:100%;background:var(--ink);border:1px solid var(--line);border-radius:10px;padding:13px 15px;color:var(--text);font-family:var(--body);font-size:15px;margin-bottom:16px;transition:.2s}
+  input:focus{outline:none;border-color:var(--gold)}
+  .btn{width:100%;background:var(--gold);color:var(--ink);font-family:var(--body);font-weight:600;font-size:15.5px;padding:14px;border:none;border-radius:10px;cursor:pointer;transition:.2s;margin-top:4px}
+  .btn:hover{background:var(--gold-2)}
+  .btn:disabled{opacity:.6;cursor:not-allowed}
+  .switch{text-align:center;font-size:14px;color:var(--muted);margin-top:22px}
+  .switch a{color:var(--gold);font-weight:600;text-decoration:none}
+  .msg{font-size:13.5px;padding:12px 14px;border-radius:9px;margin-bottom:16px;display:none;line-height:1.5}
+  .msg.err{display:block;background:rgba(224,108,108,.12);border:1px solid rgba(224,108,108,.3);color:#f0a0a0}
+  .msg.ok{display:block;background:rgba(79,209,168,.12);border:1px solid rgba(79,209,168,.3);color:#7fe0c4}
+  .back{text-align:center;margin-top:18px}
+  .back a{font-family:var(--mono);font-size:12px;color:var(--muted);letter-spacing:.04em;text-decoration:none}
+  .hint{font-size:11.5px;color:var(--muted);margin:-10px 0 16px}
+</style>
+</head>
+<body>
+<div class="glow"></div>
+<div class="card">
+  <div class="logo"><span class="logo-mark"></span>VELA</div>
+  <h1>Crea tu cuenta</h1>
+  <p class="sub">Empieza a operar en segundos.</p>
+  <div class="msg" id="msg"></div>
+  <label>Nombre</label>
+  <input type="text" id="name" placeholder="Tu nombre" autocomplete="name">
+  <label>Correo electrónico</label>
+  <input type="email" id="email" placeholder="tucorreo@ejemplo.com" autocomplete="email">
+  <label>Contraseña</label>
+  <input type="password" id="password" placeholder="Mínimo 6 caracteres" autocomplete="new-password">
+  <p class="hint">Usa al menos 6 caracteres.</p>
+  <button class="btn" id="btn">Crear cuenta</button>
+  <p class="switch">¿Ya tienes cuenta? <a href="login.html">Inicia sesión</a></p>
+  <div class="back"><a href="index.html">← Volver al inicio</a></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+<script>
+  const btn=document.getElementById('btn'), msg=document.getElementById('msg');
+  function show(t,type){msg.textContent=t;msg.className='msg '+type;}
+  async function registrar(){
+    if(typeof sb==='undefined'||!sb){show('No se pudo conectar con Supabase. Revisa supabase-config.js y recarga la página.','err');return;}
+    const name=document.getElementById('name').value.trim();
+    const email=document.getElementById('email').value.trim();
+    const password=document.getElementById('password').value;
+    if(!name||!email||!password){show('Completa todos los campos.','err');return;}
+    if(password.length<6){show('La contraseña debe tener al menos 6 caracteres.','err');return;}
+    btn.disabled=true;btn.textContent='Creando cuenta...';
+    try{
+      const {data,error}=await sb.auth.signUp({email,password,options:{data:{full_name:name}}});
+      if(error){show(traducir(error.message),'err');btn.disabled=false;btn.textContent='Crear cuenta';return;}
+      if(data.session){ window.location.href='dashboard.html'; }
+      else { show('¡Cuenta creada! Revisa tu correo para confirmarla y luego inicia sesión.','ok'); btn.disabled=false;btn.textContent='Crear cuenta'; }
+    }catch(e){
+      show('Error de conexión: '+e.message,'err');btn.disabled=false;btn.textContent='Crear cuenta';
+    }
+  }
+  function traducir(m){
+    if(/already registered/i.test(m))return'Ese correo ya tiene una cuenta. Inicia sesión.';
+    if(/valid email/i.test(m))return'Escribe un correo válido.';
+    if(/at least 6/i.test(m))return'La contraseña debe tener al menos 6 caracteres.';
+    return m;
+  }
+  btn.addEventListener('click',registrar);
+  document.querySelectorAll('input').forEach(i=>i.addEventListener('keydown',e=>{if(e.key==='Enter')registrar();}));
+</script>
+</body>
+</html>

@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VELA — Plataforma de trading</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0A0E17;
+    --ink-2:#0F1522;
+    --ink-3:#161F31;
+    --line:#20293C;
+    --bone:#F4F1E9;
+    --text:#E7E9EF;
+    --muted:#8A93A6;
+    --gold:#E8B04B;
+    --gold-2:#F2C86A;
+    --up:#4FD1A8;
+    --down:#E06C6C;
+    --display:'Space Grotesk',sans-serif;
+    --body:'Inter',sans-serif;
+    --mono:'JetBrains Mono',monospace;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--ink);
+    color:var(--text);
+    font-family:var(--body);
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  a{color:inherit;text-decoration:none}
+  ::selection{background:var(--gold);color:var(--ink)}
+
+  .wrap{max-width:1200px;margin:0 auto;padding:0 24px}
+
+  /* ---------- NAV ---------- */
+  nav{
+    position:sticky;top:0;z-index:100;
+    background:rgba(10,14,23,.72);
+    backdrop-filter:blur(14px);
+    border-bottom:1px solid var(--line);
+  }
+  .nav-in{display:flex;align-items:center;justify-content:space-between;height:68px}
+  .logo{font-family:var(--display);font-weight:700;font-size:22px;letter-spacing:.14em;display:flex;align-items:center;gap:10px}
+  .logo-mark{width:14px;height:22px;border-radius:3px;background:linear-gradient(180deg,var(--gold-2),var(--gold));box-shadow:0 0 22px rgba(232,176,75,.45);position:relative}
+  .logo-mark::before,.logo-mark::after{content:"";position:absolute;left:50%;transform:translateX(-50%);width:2px;background:var(--gold)}
+  .logo-mark::before{top:-6px;height:6px}
+  .logo-mark::after{bottom:-6px;height:6px}
+  .nav-links{display:flex;gap:34px;font-size:14.5px;color:var(--muted)}
+  .nav-links a:hover{color:var(--text)}
+  .nav-cta{display:flex;gap:14px;align-items:center}
+  .btn{font-family:var(--body);font-weight:600;font-size:14.5px;padding:10px 20px;border-radius:9px;cursor:pointer;border:none;transition:.2s;white-space:nowrap}
+  .btn-ghost{background:transparent;color:var(--text)}
+  .btn-ghost:hover{color:var(--gold)}
+  .btn-gold{background:var(--gold);color:var(--ink);box-shadow:0 6px 24px rgba(232,176,75,.25)}
+  .btn-gold:hover{background:var(--gold-2);transform:translateY(-1px);box-shadow:0 8px 30px rgba(232,176,75,.38)}
+  .menu-toggle{display:none;background:none;border:none;color:var(--text);cursor:pointer}
+
+  /* ---------- HERO ---------- */
+  .hero{position:relative;padding:88px 0 40px;overflow:hidden}
+  .hero-glow{position:absolute;top:-160px;right:-120px;width:620px;height:620px;background:radial-gradient(circle,rgba(232,176,75,.14),transparent 62%);pointer-events:none}
+  .hero-in{display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center;position:relative}
+  .eyebrow{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);border:1px solid var(--line);padding:7px 14px;border-radius:100px;margin-bottom:26px}
+  .eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--up);box-shadow:0 0 8px var(--up)}
+  h1{font-family:var(--display);font-weight:600;font-size:clamp(38px,5.4vw,62px);line-height:1.04;letter-spacing:-.02em;color:#fff}
+  h1 em{font-style:normal;color:var(--gold);position:relative}
+  .lede{font-size:18px;color:var(--muted);margin:24px 0 34px;max-width:460px}
+  .hero-actions{display:flex;gap:14px;flex-wrap:wrap}
+  .btn-lg{padding:14px 26px;font-size:15.5px}
+  .hero-note{margin-top:22px;font-family:var(--mono);font-size:11.5px;color:var(--muted);letter-spacing:.04em}
+
+  /* ---------- HERO CHART CARD ---------- */
+  .chart-card{background:linear-gradient(180deg,var(--ink-2),var(--ink));border:1px solid var(--line);border-radius:18px;padding:20px;box-shadow:0 30px 80px -30px rgba(0,0,0,.8)}
+  .cc-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px}
+  .cc-sym{font-family:var(--display);font-weight:600;font-size:17px}
+  .cc-name{font-size:12.5px;color:var(--muted)}
+  .cc-price{text-align:right}
+  .cc-price .val{font-family:var(--mono);font-weight:600;font-size:20px}
+  .cc-price .chg{font-family:var(--mono);font-size:12.5px;color:var(--up)}
+  canvas{width:100%;height:auto;display:block;margin-top:8px}
+  .cc-foot{display:flex;gap:8px;margin-top:14px}
+  .tf{font-family:var(--mono);font-size:11.5px;color:var(--muted);padding:5px 11px;border-radius:6px;border:1px solid var(--line)}
+  .tf.on{color:var(--ink);background:var(--gold);border-color:var(--gold);font-weight:600}
+
+  /* ---------- TICKER ---------- */
+  .ticker{border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--ink-2);overflow:hidden;margin-top:38px}
+  .ticker-track{display:flex;gap:44px;white-space:nowrap;padding:13px 0;animation:scroll 34s linear infinite;font-family:var(--mono);font-size:13.5px}
+  .tk{display:inline-flex;gap:9px;align-items:center}
+  .tk .s{color:var(--text);font-weight:500}
+  .tk .p{color:var(--muted)}
+  .tk .u{color:var(--up)}
+  .tk .d{color:var(--down)}
+  @keyframes scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+  @media(prefers-reduced-motion:reduce){.ticker-track{animation:none}}
+
+  /* ---------- SECTIONS ---------- */
+  section{padding:96px 0}
+  .sec-eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:16px}
+  .sec-title{font-family:var(--display);font-weight:600;font-size:clamp(28px,3.6vw,40px);letter-spacing:-.015em;color:#fff;line-height:1.1;max-width:640px}
+  .sec-sub{font-size:17px;color:var(--muted);margin-top:16px;max-width:560px}
+
+  /* how it works */
+  .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:52px}
+  .step{border:1px solid var(--line);border-radius:14px;padding:30px 26px;background:var(--ink-2);transition:.25s}
+  .step:hover{border-color:var(--gold);transform:translateY(-4px)}
+  .step-n{font-family:var(--mono);font-size:13px;color:var(--gold);letter-spacing:.1em}
+  .step h3{font-family:var(--display);font-weight:600;font-size:20px;margin:18px 0 10px;color:#fff}
+  .step p{font-size:15px;color:var(--muted)}
+
+  /* features */
+  .feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;margin-top:52px;background:var(--line);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+  .feat{background:var(--ink);padding:34px 30px;transition:.25s}
+  .feat:hover{background:var(--ink-2)}
+  .feat-ico{width:40px;height:40px;border-radius:10px;background:var(--ink-3);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;color:var(--gold);margin-bottom:18px}
+  .feat h4{font-family:var(--display);font-weight:600;font-size:17px;color:#fff;margin-bottom:8px}
+  .feat p{font-size:14.5px;color:var(--muted)}
+
+  /* story */
+  .story{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center}
+  .story p{font-size:17px;color:var(--muted);margin-top:20px}
+  .story p strong{color:var(--text);font-weight:500}
+  .story-visual{border:1px solid var(--line);border-radius:16px;background:linear-gradient(160deg,var(--ink-3),var(--ink));aspect-ratio:1/.82;display:flex;flex-direction:column;justify-content:center;gap:20px;padding:38px}
+  .quote{font-family:var(--display);font-weight:500;font-size:23px;line-height:1.35;color:#fff}
+  .quote span{color:var(--gold)}
+  .qauthor{font-family:var(--mono);font-size:12.5px;color:var(--muted);letter-spacing:.05em}
+
+  /* ai section */
+  .ai-grid{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center}
+  .ai-list{list-style:none;margin:26px 0 0}
+  .ai-list li{font-size:15.5px;color:var(--muted);padding:12px 0;border-bottom:1px solid var(--line)}
+  .ai-b{color:var(--text);font-weight:600}
+  .ai-note{font-family:var(--mono);font-size:11.5px;color:var(--muted);margin-top:18px;letter-spacing:.03em}
+  .ai-card{background:linear-gradient(160deg,var(--ink-3),var(--ink-2));border:1px solid var(--line);border-radius:18px;padding:26px;box-shadow:0 30px 80px -34px rgba(0,0,0,.85);position:relative;overflow:hidden}
+  .ai-card::before{content:"";position:absolute;top:-40%;right:-20%;width:260px;height:260px;background:radial-gradient(circle,rgba(232,176,75,.16),transparent 65%);pointer-events:none}
+  .ai-card-head{display:flex;gap:14px;align-items:center;margin-bottom:20px;position:relative}
+  .ai-avatar{width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,var(--gold-2),var(--gold));color:var(--ink);display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:0 0 24px rgba(232,176,75,.4)}
+  .ai-name{font-family:var(--display);font-weight:600;font-size:16px;color:#fff}
+  .ai-status{font-family:var(--mono);font-size:11.5px;color:var(--muted);display:flex;align-items:center;gap:7px;margin-top:2px}
+  .ai-dot{width:6px;height:6px;border-radius:50%;background:var(--up);box-shadow:0 0 8px var(--up);animation:pulse 1.6s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+  @media(prefers-reduced-motion:reduce){.ai-dot{animation:none}}
+  .ai-msg p{font-size:15px;color:var(--text);margin-bottom:14px;line-height:1.55}
+  .ai-msg b{color:var(--gold);font-weight:600}
+  .ai-msg strong{color:#fff}
+  .ai-tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:20px;position:relative}
+  .ai-tag{font-family:var(--mono);font-size:11.5px;color:var(--muted);padding:6px 12px;border-radius:7px;border:1px solid var(--line)}
+  .ai-tag.up{color:var(--up);border-color:rgba(79,209,168,.35)}
+
+  /* stats */
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:40px;padding:56px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin-top:20px}
+  .stat .num{font-family:var(--mono);font-weight:600;font-size:clamp(30px,4vw,44px);color:var(--gold)}
+  .stat .lbl{font-size:14px;color:var(--muted);margin-top:6px}
+
+  /* final cta */
+  .cta-final{text-align:center;padding:110px 24px;position:relative}
+  .cta-glow{position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(232,176,75,.10),transparent 60%);pointer-events:none}
+  .cta-final h2{font-family:var(--display);font-weight:600;font-size:clamp(30px,4.4vw,50px);color:#fff;letter-spacing:-.02em;position:relative}
+  .cta-final p{font-size:18px;color:var(--muted);margin:20px auto 34px;max-width:480px;position:relative}
+
+  /* footer */
+  footer{border-top:1px solid var(--line);padding:54px 0 40px;background:var(--ink-2)}
+  .foot-top{display:flex;justify-content:space-between;flex-wrap:wrap;gap:30px;margin-bottom:38px}
+  .foot-col h5{font-size:13px;color:var(--text);margin-bottom:14px;letter-spacing:.02em}
+  .foot-col a{display:block;font-size:14px;color:var(--muted);margin-bottom:9px}
+  .foot-col a:hover{color:var(--gold)}
+  .disclaimer{border:1px solid var(--line);border-radius:10px;padding:18px 20px;font-size:12.5px;color:var(--muted);line-height:1.6;background:var(--ink)}
+  .disclaimer strong{color:var(--gold)}
+  .foot-bottom{margin-top:28px;font-size:12.5px;color:var(--muted);display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
+
+  /* reveal */
+  .reveal{opacity:0;transform:translateY(24px);transition:.7s cubic-bezier(.2,.7,.2,1)}
+  .reveal.in{opacity:1;transform:none}
+
+  @media(max-width:900px){
+    .hero-in,.story,.ai-grid{grid-template-columns:1fr;gap:40px}
+    .steps,.feat-grid,.stats{grid-template-columns:1fr}
+    .nav-links{display:none}
+    .menu-toggle{display:block}
+    .hero{padding:56px 0 20px}
+    section{padding:70px 0}
+    .story-visual{aspect-ratio:auto}
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap nav-in">
+    <div class="logo"><span class="logo-mark"></span>VELA</div>
+    <div class="nav-links">
+      <a href="#producto">Producto</a>
+      <a href="#como">Cómo funciona</a>
+      <a href="#ia">IA</a>
+      <a href="#nosotros">Nosotros</a>
+    </div>
+    <div class="nav-cta">
+      <button class="btn btn-ghost" onclick="location.href='login.html'">Iniciar sesión</button>
+      <button class="btn btn-gold" onclick="location.href='registro.html'">Crear cuenta</button>
+    </div>
+    <button class="menu-toggle" aria-label="Menú">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="hero-glow"></div>
+  <div class="wrap hero-in">
+    <div class="reveal in">
+      <span class="eyebrow"><span class="dot"></span>Plataforma de trading</span>
+      <h1>Todo el mercado.<br>Una sola <em>vista.</em></h1>
+      <p class="lede">Gráficos en tiempo real, órdenes precisas y tu portafolio completo en una interfaz pensada para decidir rápido y con calma.</p>
+      <div class="hero-actions">
+        <button class="btn btn-gold btn-lg" onclick="location.href='registro.html'">Crear cuenta</button>
+        <button class="btn btn-ghost btn-lg" style="border:1px solid var(--line)" onclick="location.href='login.html'">Ver la plataforma</button>
+      </div>
+      <p class="hero-note">Acciones · Cripto · Índices · Divisas · Materias primas</p>
+    </div>
+
+    <div class="reveal in" style="transition-delay:.1s">
+      <div class="chart-card">
+        <div class="cc-head">
+          <div>
+            <div class="cc-sym">AAPL</div>
+            <div class="cc-name">Apple Inc.</div>
+          </div>
+          <div class="cc-price">
+            <div class="val" id="livePrice">214.38</div>
+            <div class="chg" id="liveChg">▲ 1.82 (+0.86%)</div>
+          </div>
+        </div>
+        <canvas id="chart" width="520" height="260"></canvas>
+        <div class="cc-foot">
+          <span class="tf">1D</span>
+          <span class="tf on">1S</span>
+          <span class="tf">1M</span>
+          <span class="tf">1A</span>
+          <span class="tf">TODO</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- TICKER -->
+<div class="ticker" id="mercados">
+  <div class="ticker-track" id="tickerTrack"></div>
+</div>
+
+<!-- COMO FUNCIONA -->
+<section id="como">
+  <div class="wrap">
+    <div class="reveal">
+      <div class="sec-eyebrow">Cómo funciona</div>
+      <h2 class="sec-title">De cero a tu primera orden en minutos.</h2>
+    </div>
+    <div class="steps">
+      <div class="step reveal">
+        <div class="step-n">01</div>
+        <h3>Crea tu cuenta</h3>
+        <p>Regístrate en segundos y accede a tu panel personal con saldo listo para operar.</p>
+      </div>
+      <div class="step reveal" style="transition-delay:.08s">
+        <div class="step-n">02</div>
+        <h3>Explora los mercados</h3>
+        <p>Acciones, cripto, índices, divisas y materias primas con datos en vivo, todo en una misma pantalla.</p>
+      </div>
+      <div class="step reveal" style="transition-delay:.16s">
+        <div class="step-n">03</div>
+        <h3>Opera con precisión</h3>
+        <p>Órdenes de mercado, límite y stop con ejecución instantánea y seguimiento de tu P&amp;L.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section id="producto" style="padding-top:20px">
+  <div class="wrap">
+    <div class="reveal">
+      <div class="sec-eyebrow">Producto</div>
+      <h2 class="sec-title">Herramientas de nivel institucional, sin la complejidad.</h2>
+      <p class="sec-sub">Cada componente está diseñado para que veas más y dudes menos en el momento de operar.</p>
+    </div>
+    <div class="feat-grid">
+      <div class="feat reveal">
+        <div class="feat-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg></div>
+        <h4>Gráficos en tiempo real</h4>
+        <p>Velas japonesas con datos en vivo y herramientas de análisis fluidas.</p>
+      </div>
+      <div class="feat reveal" style="transition-delay:.06s">
+        <div class="feat-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M6 8l6-6 6 6M6 16l6 6 6-6"/></svg></div>
+        <h4>Órdenes avanzadas</h4>
+        <p>Mercado, límite y stop. Control total sobre cómo y cuándo entras.</p>
+      </div>
+      <div class="feat reveal" style="transition-delay:.12s">
+        <div class="feat-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div>
+        <h4>Portafolio y P&amp;L en vivo</h4>
+        <p>Tu posición, tu rendimiento y tu riesgo, actualizados al instante.</p>
+      </div>
+      <div class="feat reveal">
+        <div class="feat-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h10"/></svg></div>
+        <h4>Listas de seguimiento</h4>
+        <p>Arma tus watchlists y sigue solo los activos que te importan.</p>
+      </div>
+      <div class="feat reveal" style="transition-delay:.06s">
+        <div class="feat-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 010 20a15 15 0 010-20"/></svg></div>
+        <h4>Mercados globales</h4>
+        <p>Miles de activos de distintos mercados, conectados a fuentes de datos reales.</p>
+      </div>
+      <div class="feat reveal" style="transition-delay:.12s">
+        <div class="feat-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3a6 6 0 000 12 6 6 0 000-12z"/><path d="M12 15v6M9 21h6"/></svg></div>
+        <h4>Diseño enfocado</h4>
+        <p>Modo oscuro nativo y una interfaz que reduce el ruido para que decidas mejor.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- AI SECTION -->
+<section id="ia" style="padding-top:20px">
+  <div class="wrap">
+    <div class="ai-grid">
+      <div class="reveal">
+        <div class="sec-eyebrow">Inteligencia artificial</div>
+        <h2 class="sec-title">Un analista técnico, en cada gráfico.</h2>
+        <p class="sec-sub">VELA integra un asistente de IA que lee el comportamiento del activo y te lo explica en segundos, en lenguaje claro. No sustituye tu criterio: lo acelera.</p>
+        <ul class="ai-list">
+          <li><span class="ai-b">Lectura instantánea</span> de tendencia, soportes y resistencias.</li>
+          <li><span class="ai-b">Indicadores explicados</span> — RSI, medias móviles, volumen — sin jerga.</li>
+          <li><span class="ai-b">Contexto de mercado</span> resumido para que decidas más rápido.</li>
+        </ul>
+        <p class="ai-note">La IA ofrece análisis informativo, no recomendaciones de inversión.</p>
+      </div>
+
+      <div class="reveal" style="transition-delay:.1s">
+        <div class="ai-card">
+          <div class="ai-card-head">
+            <div class="ai-avatar">✦</div>
+            <div>
+              <div class="ai-name">Asistente VELA</div>
+              <div class="ai-status"><span class="ai-dot"></span>Analizando AAPL · 1S</div>
+            </div>
+          </div>
+          <div class="ai-msg">
+            <p>El precio de <strong>AAPL</strong> rompió su resistencia de <b>$212</b> con volumen creciente — señal de fuerza compradora.</p>
+            <p>El <b>RSI está en 68</b>, cerca de zona de sobrecompra: podría venir una pausa antes de continuar.</p>
+            <p>La media de 20 días actúa como soporte dinámico en <b>$208</b>.</p>
+          </div>
+          <div class="ai-tags">
+            <span class="ai-tag up">Tendencia alcista</span>
+            <span class="ai-tag">RSI 68</span>
+            <span class="ai-tag">Soporte $208</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STORY -->
+<section id="nosotros">
+  <div class="wrap story">
+    <div class="reveal">
+      <div class="sec-eyebrow">Nosotros</div>
+      <h2 class="sec-title">Nació de una frustración simple.</h2>
+      <p>Operar los mercados no debería sentirse como pelear contra la herramienta. La mayoría de las plataformas abruman al principiante y enlentecen al experto.</p>
+      <p><strong>VELA es la respuesta:</strong> una plataforma que pone la claridad primero. Menos pantallas, menos ruido, más decisión. Construida para que cualquiera pueda entender el mercado, y para que quien ya lo domina, se mueva más rápido.</p>
+    </div>
+    <div class="story-visual reveal" style="transition-delay:.1s">
+      <div class="quote">"El mejor trade es el que <span>entiendes</span> antes de ejecutarlo."</div>
+      <div class="qauthor">— Principio de diseño de VELA</div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="wrap">
+  <div class="stats">
+    <div class="stat reveal"><div class="num">10,000+</div><div class="lbl">Activos disponibles</div></div>
+    <div class="stat reveal" style="transition-delay:.08s"><div class="num">Tiempo real</div><div class="lbl">Datos de mercado en vivo</div></div>
+    <div class="stat reveal" style="transition-delay:.16s"><div class="num">&lt;100ms</div><div class="lbl">Ejecución de órdenes</div></div>
+  </div>
+</div>
+
+<!-- FINAL CTA -->
+<div class="cta-final">
+  <div class="cta-glow"></div>
+  <h2 class="reveal">Empieza a operar hoy.</h2>
+  <p class="reveal" style="transition-delay:.06s">Crea tu cuenta gratis y descubre una forma más clara de ver los mercados.</p>
+  <button class="btn btn-gold btn-lg reveal" style="transition-delay:.12s" onclick="location.href='registro.html'">Crear cuenta</button>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="wrap">
+    <div class="foot-top">
+      <div class="foot-col" style="max-width:280px">
+        <div class="logo" style="margin-bottom:14px"><span class="logo-mark"></span>VELA</div>
+        <p style="font-size:14px;color:var(--muted)">La forma más clara de ver y operar los mercados.</p>
+      </div>
+      <div class="foot-col">
+        <h5>Producto</h5>
+        <a href="#">Plataforma</a><a href="#">Mercados</a><a href="#">Precios</a><a href="#">Seguridad</a>
+      </div>
+      <div class="foot-col">
+        <h5>Empresa</h5>
+        <a href="#">Nosotros</a><a href="#">Blog</a><a href="#">Contacto</a>
+      </div>
+      <div class="foot-col">
+        <h5>Legal</h5>
+        <a href="#">Términos</a><a href="#">Privacidad</a><a href="#">Aviso de riesgo</a>
+      </div>
+    </div>
+    <div class="disclaimer">
+      Plataforma de simulación. Los saldos son ficticios y no representan dinero real; VELA no custodia fondos ni constituye asesoría de inversión.
+    </div>
+    <div class="foot-bottom">
+      <span>© 2026 VELA</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // ---- Hero candlestick chart (canvas) ----
+  const cv = document.getElementById('chart');
+  const ctx = cv.getContext('2d');
+  const DPR = window.devicePixelRatio || 1;
+  function sizeCanvas(){
+    const w = cv.clientWidth, h = 260;
+    cv.width = w*DPR; cv.height = h*DPR;
+    ctx.setTransform(DPR,0,0,DPR,0,0);
+    return {w,h};
+  }
+  // generate candles (random walk, upward bias)
+  let price = 205, candles=[];
+  for(let i=0;i<48;i++){
+    const open=price;
+    const drift=(Math.random()-0.42)*3.2;
+    const close=Math.max(150,open+drift);
+    const high=Math.max(open,close)+Math.random()*1.8;
+    const low=Math.min(open,close)-Math.random()*1.8;
+    candles.push({open,close,high,low});
+    price=close;
+  }
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let prog = reduce?candles.length:0;
+  function draw(){
+    const {w,h}=sizeCanvas();
+    ctx.clearRect(0,0,w,h);
+    const vals=candles.flatMap(c=>[c.high,c.low]);
+    const max=Math.max(...vals), min=Math.min(...vals), rng=max-min||1;
+    const pad=14, cw=(w-pad*2)/candles.length;
+    const y=v=>pad+(h-pad*2)*(1-(v-min)/rng);
+    const n=Math.floor(prog);
+    // area line under closes
+    ctx.beginPath();
+    for(let i=0;i<n;i++){const x=pad+cw*i+cw/2;const yy=y(candles[i].close);i===0?ctx.moveTo(x,yy):ctx.lineTo(x,yy);}
+    ctx.strokeStyle='rgba(232,176,75,.9)';ctx.lineWidth=1.6;ctx.stroke();
+    ctx.lineTo(pad+cw*(n-1)+cw/2,h-pad);ctx.lineTo(pad+cw/2,h-pad);ctx.closePath();
+    const g=ctx.createLinearGradient(0,0,0,h);g.addColorStop(0,'rgba(232,176,75,.18)');g.addColorStop(1,'rgba(232,176,75,0)');ctx.fillStyle=g;ctx.fill();
+    // candles
+    for(let i=0;i<n;i++){
+      const c=candles[i], x=pad+cw*i+cw/2, up=c.close>=c.open;
+      ctx.strokeStyle=up?'#4FD1A8':'#E06C6C';ctx.fillStyle=up?'#4FD1A8':'#E06C6C';
+      ctx.beginPath();ctx.moveTo(x,y(c.high));ctx.lineTo(x,y(c.low));ctx.lineWidth=1;ctx.stroke();
+      const bw=Math.max(2,cw*0.5);
+      ctx.fillRect(x-bw/2,y(Math.max(c.open,c.close)),bw,Math.max(1,Math.abs(y(c.open)-y(c.close))));
+    }
+    if(prog<candles.length){prog+=0.9;requestAnimationFrame(draw);}
+  }
+  window.addEventListener('resize',()=>{prog=candles.length;draw();});
+  draw();
+
+  // live price flicker
+  const pEl=document.getElementById('livePrice');
+  if(!reduce){setInterval(()=>{const base=214.38+(Math.random()-0.5)*0.6;pEl.textContent=base.toFixed(2);},1400);}
+
+  // ---- Ticker ----
+  const data=[
+    ['AAPL','214.38','+0.86%',1],['TSLA','248.50','+2.14%',1],['BTC','67,204','-0.42%',0],
+    ['MSFT','441.12','+0.31%',1],['NVDA','128.44','+3.02%',1],['ETH','3,512','-1.10%',0],
+    ['S&P 500','5,634','+0.55%',1],['USD/MXN','18.62','-0.18%',0],['AMZN','198.20','+0.94%',1],
+    ['META','562.30','+1.42%',1],['GOOGL','179.55','+0.22%',1],['ORO','2,388','+0.61%',1],
+    ['PETRÓLEO','78.40','+1.24%',1],['PLATA','29.85','-0.36%',0],['GAS NAT.','2.71','+0.88%',1]
+  ];
+  const track=document.getElementById('tickerTrack');
+  const html=data.map(d=>`<span class="tk"><span class="s">${d[0]}</span><span class="p">${d[1]}</span><span class="${d[3]?'u':'d'}">${d[3]?'▲':'▼'} ${d[2]}</span></span>`).join('');
+  track.innerHTML=html+html;
+
+  // ---- Scroll reveal ----
+  const io=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}})},{threshold:.15});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+</script>
+</body>
+</html>
