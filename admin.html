@@ -3,87 +3,156 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin — VELA</title>
+<title>Centro de Comando — VELA</title>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-  :root{--ink:#0A0E17;--ink-2:#0F1522;--line:#20293C;--text:#E7E9EF;--muted:#8A93A6;--gold:#E8B04B;--gold-2:#F2C86A;--down:#E06C6C;--up:#4FD1A8;--display:'Space Grotesk',sans-serif;--body:'Inter',sans-serif;--mono:'JetBrains Mono',monospace}
+  :root{--ink:#0A0E17;--ink-2:#0F1522;--ink-3:#161F31;--line:#20293C;--text:#E7E9EF;--muted:#8A93A6;--gold:#E8B04B;--gold-2:#F2C86A;--down:#E06C6C;--up:#4FD1A8;--display:'Space Grotesk',sans-serif;--body:'Inter',sans-serif;--mono:'JetBrains Mono',monospace}
   *{margin:0;padding:0;box-sizing:border-box}
-  body{background:var(--ink);color:var(--text);font-family:var(--body);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
-  .card{width:100%;max-width:430px;background:linear-gradient(180deg,var(--ink-2),var(--ink));border:1px solid var(--line);border-radius:18px;padding:38px 32px;box-shadow:0 30px 80px -30px rgba(0,0,0,.8)}
-  h1{font-family:var(--display);font-weight:600;font-size:24px;color:#fff;text-align:center;margin-bottom:8px}
-  .sub{font-size:14px;color:var(--muted);text-align:center;margin-bottom:26px}
+  body{background:var(--ink);color:var(--text);font-family:var(--body);min-height:100vh;padding:40px 24px}
+  .header{text-align:center;margin-bottom:40px}
+  h1{font-family:var(--display);font-weight:600;font-size:28px;color:#fff;letter-spacing:-.01em}
+  .sub{font-size:14px;color:var(--muted);margin-top:8px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));gap:24px;max-width:1200px;margin:0 auto}
+  .card{background:linear-gradient(180deg,var(--ink-2),var(--ink));border:1px solid var(--line);border-radius:18px;padding:32px;box-shadow:0 30px 80px -30px rgba(0,0,0,.8)}
+  h2{font-family:var(--display);font-size:18px;color:var(--gold);margin-bottom:24px;border-bottom:1px solid var(--line);padding-bottom:12px}
   label{display:block;font-size:12.5px;color:var(--muted);margin:0 0 7px;letter-spacing:.02em}
   input{width:100%;background:var(--ink);border:1px solid var(--line);border-radius:10px;padding:13px 15px;color:var(--text);font-family:var(--body);font-size:15px;margin-bottom:16px;transition:.2s}
   input:focus{outline:none;border-color:var(--gold)}
-  .btn{width:100%;background:var(--gold);color:var(--ink);font-family:var(--body);font-weight:600;font-size:15.5px;padding:14px;border:none;border-radius:10px;cursor:pointer;transition:.2s;margin-top:10px}
+  .btn{width:100%;background:var(--gold);color:var(--ink);font-family:var(--body);font-weight:600;font-size:14.5px;padding:12px;border:none;border-radius:10px;cursor:pointer;transition:.2s}
   .btn:hover{background:var(--gold-2)}
+  .btn-sm{padding:8px 12px;font-size:12.5px;border-radius:6px;width:auto}
+  .btn-green{background:var(--up);color:var(--ink)}
+  .btn-red{background:transparent;border:1px solid var(--down);color:var(--down)}
   .msg{font-size:13.5px;padding:12px 14px;border-radius:9px;margin-top:16px;display:none;line-height:1.5;text-align:center}
   .msg.err{display:block;background:rgba(224,108,108,.12);border:1px solid rgba(224,108,108,.3);color:#f0a0a0}
   .msg.ok{display:block;background:rgba(79,209,168,.12);border:1px solid rgba(79,209,168,.3);color:#7fe0c4}
+  .list-item{background:var(--ink-3);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+  .list-info{font-size:13.5px}
+  .list-info strong{color:#fff;font-family:var(--mono);font-size:15px;display:block;margin-bottom:4px}
+  .empty{font-size:13.5px;color:var(--muted);text-align:center;padding:20px;font-style:italic}
 </style>
 </head>
 <body>
 
-<div class="card">
-  <h1>⚙️ Panel Operativo</h1>
-  <p class="sub">Ajuste manual de fondos de práctica</p>
-  
-  <label>Correo del usuario</label>
-  <input type="email" id="email" placeholder="cliente@ejemplo.com">
-  
-  <label>Nuevo saldo total ($)</label>
-  <input type="number" id="saldo" placeholder="Ej. 150000">
-  
-  <button class="btn" id="btn">Actualizar Saldo</button>
-  <div class="msg" id="msg"></div>
+<div class="header">
+  <h1>⚙️ Centro de Comando VELA</h1>
+  <p class="sub">Administración de fondos, solicitudes y operativas</p>
+</div>
+
+<div class="grid">
+  <div class="card">
+    <h2>📥 Solicitudes de Fondeo</h2>
+    <div id="solicitudes-list">
+      <div class="empty">Cargando solicitudes...</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>⚡ Ajuste Manual de Saldo</h2>
+    <label>Correo del usuario</label>
+    <input type="email" id="email" placeholder="cliente@ejemplo.com">
+    <label>Nuevo saldo total exacto ($)</label>
+    <input type="number" id="saldo" placeholder="Ej. 150000">
+    <button class="btn" id="btn-manual">Sobrescribir Saldo</button>
+    <div class="msg" id="msg-manual"></div>
+  </div>
+
+  <div class="card">
+    <h2>📈 Operaciones Activas</h2>
+    <div class="empty">No hay operaciones abiertas en este momento.</div>
+    </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="supabase-config.js"></script>
 <script>
-  const btn = document.getElementById('btn');
-  const msg = document.getElementById('msg');
-  
-  function show(t, type){
-    msg.textContent = t;
-    msg.className = 'msg ' + type;
-  }
-
-  btn.addEventListener('click', async () => {
-    const email = document.getElementById('email').value.trim();
-    const saldo = document.getElementById('saldo').value.trim();
-
-    if(!email || !saldo){
-      show('Ingresa el correo y el nuevo saldo.', 'err');
+  // 1. CARGAR SOLICITUDES PENDIENTES
+  async function cargarSolicitudes() {
+    const list = document.getElementById('solicitudes-list');
+    const { data, error } = await sb.from('solicitudes').select('*').eq('status', 'pendiente').order('created_at', { ascending: false });
+    
+    if(error || !data || data.length === 0){
+      list.innerHTML = '<div class="empty">No hay solicitudes pendientes.</div>';
       return;
     }
 
-    btn.disabled = true;
-    btn.textContent = 'Actualizando...';
+    list.innerHTML = '';
+    data.forEach(req => {
+      const div = document.createElement('div');
+      div.className = 'list-item';
+      div.innerHTML = `
+        <div class="list-info">
+          <strong>$${req.monto.toLocaleString('es-MX')}</strong>
+          <span style="color:var(--muted)">${req.email}</span><br>
+          <span style="font-size:11px;color:var(--gold);text-transform:uppercase">${req.tipo}</span>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-sm btn-green" onclick="aprobar(${req.id}, '${req.email}', ${req.monto})">Aprobar</button>
+          <button class="btn btn-sm btn-red" onclick="rechazar(${req.id})">Rechazar</button>
+        </div>
+      `;
+      list.appendChild(div);
+    });
+  }
 
-    // Guardamos el saldo directamente buscando por el correo electrónico
-    const { data, error } = await sb
-      .from('perfiles')
-      .insert([{ email: email, balance: parseFloat(saldo) }], { upsert: true })
-      .select();
+  // 2. APROBAR SOLICITUD
+  async function aprobar(id, email, monto) {
+    // Buscar saldo actual
+    const { data: perfil } = await sb.from('perfiles').select('balance').eq('email', email).single();
+    const saldoActual = perfil ? perfil.balance : 0;
+    const nuevoSaldo = saldoActual + monto;
 
-    // Nota: Usamos una estrategia que crea o actualiza si ya existe el correo
-    const { error: updateError } = await sb
-      .from('perfiles')
-      .update({ balance: parseFloat(saldo) })
-      .eq('email', email);
+    // Actualizar saldo (upsert asegura que si no existe el perfil, lo crea)
+    await sb.from('perfiles').upsert({ email: email, balance: nuevoSaldo });
+    
+    // Cambiar status de solicitud
+    await sb.from('solicitudes').update({ status: 'aprobado' }).eq('id', id);
+    cargarSolicitudes();
+    alert(`Fondeo de $${monto} aprobado para ${email}`);
+  }
 
-    if (updateError) {
-      show('Error al guardar en la base de datos.', 'err');
+  // 3. RECHAZAR SOLICITUD
+  async function rechazar(id) {
+    if(confirm("¿Seguro que deseas rechazar este fondeo?")){
+      await sb.from('solicitudes').update({ status: 'rechazado' }).eq('id', id);
+      cargarSolicitudes();
+    }
+  }
+
+  // 4. AJUSTE MANUAL DIRECTO
+  const btnManual = document.getElementById('btn-manual');
+  const msgManual = document.getElementById('msg-manual');
+  function showMsg(t, type){ msgManual.textContent = t; msgManual.className = 'msg ' + type; }
+
+  btnManual.addEventListener('click', async () => {
+    const email = document.getElementById('email').value.trim();
+    const saldo = Number(document.getElementById('saldo').value);
+
+    if(!email || saldo < 0){ showMsg('Datos inválidos.', 'err'); return; }
+
+    btnManual.disabled = true;
+    btnManual.textContent = 'Actualizando...';
+
+    // Se usa upsert para garantizar la actualización o creación
+    const { error } = await sb.from('perfiles').upsert({ email: email, balance: saldo });
+
+    if (error) {
+      showMsg('Error de base de datos.', 'err');
     } else {
-      show('✅ Saldo actualizado correctamente a $' + parseFloat(saldo).toLocaleString('es-MX'), 'ok');
+      showMsg('✅ Saldo sobrescrito exitosamente.', 'ok');
       document.getElementById('email').value = '';
       document.getElementById('saldo').value = '';
     }
-    
-    btn.disabled = false;
-    btn.textContent = 'Actualizar Saldo';
+    btnManual.disabled = false;
+    btnManual.textContent = 'Sobrescribir Saldo';
   });
+
+  // Iniciar
+  if(typeof sb !== 'undefined'){
+    cargarSolicitudes();
+    // Refrescar cada 10 segundos
+    setInterval(cargarSolicitudes, 10000); 
+  }
 </script>
 </body>
 </html>
