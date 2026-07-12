@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aviso de Riesgo — VELA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0A0E17; --ink-2:#0F1522; --line:#20293C; --text:#E7E9EF; --muted:#8A93A6; --gold:#E8B04B; --down:#E06C6C;
+    --display:'Space Grotesk',sans-serif; --body:'Inter',sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--ink);color:var(--text);font-family:var(--body);line-height:1.7;-webkit-font-smoothing:antialiased}
+  .nav-back{border-bottom:1px solid var(--line);background:var(--ink-2);padding:16px 0;position:sticky;top:0;z-index:10}
+  .nav-in{max-width:900px;margin:0 auto;padding:0 24px;display:flex;justify-content:space-between;align-items:center}
+  .btn-back{color:var(--muted);font-size:14px;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+  .btn-back:hover{color:var(--text)}
+  .logo{font-family:var(--display);font-weight:700;font-size:18px;letter-spacing:.12em;color:var(--gold)}
+  .content{max-width:900px;margin:0 auto;padding:64px 24px 96px}
+  h1{font-family:var(--display);font-weight:600;font-size:36px;color:#fff;margin-bottom:12px;letter-spacing:-.02em}
+  .meta{font-size:13px;color:var(--muted);margin-bottom:48px;border-bottom:1px solid var(--line);padding-bottom:16px}
+  h2{font-family:var(--display);font-weight:600;font-size:22px;color:#fff;margin:38px 0 16px;letter-spacing:-.01em}
+  h3{font-family:var(--display);font-weight:600;font-size:17px;color:var(--gold);margin:22px 0 10px}
+  p{margin-bottom:18px;color:var(--text);font-size:15px;opacity:0.95}
+  ul{margin-left:22px;margin-bottom:18px;color:var(--text);font-size:15px;opacity:0.95}
+  li{margin-bottom:8px}
+  strong{color:#fff;font-weight:600}
+  .warning-banner{background:rgba(224,108,108,0.08);border:1px solid var(--down);border-radius:12px;padding:24px;margin-bottom:40px;color:var(--text)}
+  .warning-banner h3{color:var(--down);margin-top:0;font-size:18px;text-transform:uppercase;letter-spacing:0.05em}
+</style>
+</head>
+<body>
+
+<div class="nav-back">
+  <div class="nav-in">
+    <a href="index.html" class="btn-back">← Volver al inicio</a>
+    <div class="logo">VELA</div>
+  </div>
+</div>
+
+<div class="content">
+  <h1>Declaración y Aviso de Riesgo</h1>
+  <div class="meta">Última actualización: [Insertar Fecha]</div>
+
+  <div class="warning-banner">
+    <h3>Advertencia de Alto Riesgo</h3>
+    <p><strong>El trading de divisas (Forex), contratos por diferencia (CFDs), criptoactivos y productos financieros apalancados implica una exposición crítica al riesgo, pudiendo resultar en la pérdida total o superior del capital inicialmente dispuesto. No es un modelo operativo adecuado para todos los perfiles de usuario.</strong></p>
+  </div>
+
+  <h2>1. El Riesgo de Apalancamiento Financiero</h2>
+  <p>El uso de apalancamiento actúa como un arma de doble filo: posee la capacidad tanto de potenciar las ganancias potenciales como de <strong>magnificar drásticamente las pérdidas efectivas</strong>. Movimientos de mercado sumamente breves e imprevistos en contra de las posiciones del Usuario pueden gatillar la liquidación forzosa de sus garantías operativas con intermediarios externos.</p>
+
+  <h2>2. Riesgos Específicos de Herramientas Tecnológicas</h2>
+  
+  <h3>2.1 Modelado Algorítmico (Vela IA)</h3>
+  <p>Las herramientas basadas en Inteligencia Artificial y modelado predictivo automatizado procesan comportamientos históricos de precios. El Usuario debe saber que los patrones del pasado no determinan, bajo ninguna circunstancia, la estructura futura del mercado. Los sesgos de los datos o las anomalías imprevistas ("Cisnes Negros") anulan la efectividad de las lecturas algorítmicas.</p>
+
+  <h3>2.2 Copia de Operaciones (Copy Trading)</h3>
+  <p>Replicar las asignaciones operativas de otros usuarios o asesores expone al Usuario a los riesgos particulares de la gestión de capital ajena. El Usuario asume el riesgo de que el emisor de la estrategia sufra pérdidas consecutivas duraderas ("Drawdowns") o incurra en conductas operativas erráticas no previstas.</p>
+
+  <h2>3. Entorno de Datos de Terceros</h2>
+  <p>Los precios de referencia y flujos informativos integrados en la Plataforma (incluidos los complementos de Trading Central) provienen de bolsas y agregadores globales de datos. Dichas conexiones de red están sujetas a retrasos por latencia, interrupciones técnicas generales de los servidores o caídas de suministro. El Usuario no debe ejecutar órdenes en vivo en plataformas de intermediación externa apoyándose únicamente en un flujo informativo que pudiera verse afectado por estas variables.</p>
+
+  <h2>4. Contexto Regulador en Territorio Mexicano</h2>
+  <p>De conformidad con los criterios de la <strong>Comisión Nacional Bancaria y de Valores (CNBV)</strong> y las alertas emitidas por la <strong>CONDUSEF</strong>, el mercado de divisas minorista descentralizado no se encuentra bajo supervisión directa del Estado Mexicano. Las operaciones que el Usuario decida ejecutar de manera externa con brókers extranjeros no cuentan con el respaldo ni los fondos de protección de las autoridades de ahorro mexicanas. Es responsabilidad directa del Usuario evaluar y dictaminar el estatus legal del intermediario final donde decida depositar fondos líquidos.</p>
+</div>
+
+</body>
+</html>
