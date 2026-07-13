@@ -59,14 +59,19 @@
 
   <div class="card">
     <h2>📈 Operaciones Activas</h2>
-    <div class="empty">No hay operaciones abiertas en este momento.</div>
+    <!-- Contenedor dinámico añadido -->
+    <div id="operaciones-list">
+      <div class="empty">Cargando operaciones del mercado...</div>
     </div>
+  </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="supabase-config.js"></script>
 <script>
+  // ==========================================
   // 1. CARGAR SOLICITUDES PENDIENTES
+  // ==========================================
   async function cargarSolicitudes() {
     const list = document.getElementById('solicitudes-list');
     const { data, error } = await sb.from('solicitudes').select('*').eq('status', 'pendiente').order('created_at', { ascending: false });
@@ -97,15 +102,11 @@
 
   // 2. APROBAR SOLICITUD
   async function aprobar(id, email, monto) {
-    // Buscar saldo actual
     const { data: perfil } = await sb.from('perfiles').select('balance').eq('email', email).single();
     const saldoActual = perfil ? perfil.balance : 0;
     const nuevoSaldo = saldoActual + monto;
 
-    // Actualizar saldo (upsert asegura que si no existe el perfil, lo crea)
     await sb.from('perfiles').upsert({ email: email, balance: nuevoSaldo });
-    
-    // Cambiar status de solicitud
     await sb.from('solicitudes').update({ status: 'aprobado' }).eq('id', id);
     cargarSolicitudes();
     alert(`Fondeo de $${monto} aprobado para ${email}`);
@@ -133,7 +134,6 @@
     btnManual.disabled = true;
     btnManual.textContent = 'Actualizando...';
 
-    // Se usa upsert para garantizar la actualización o creación
     const { error } = await sb.from('perfiles').upsert({ email: email, balance: saldo });
 
     if (error) {
@@ -147,11 +147,75 @@
     btnManual.textContent = 'Sobrescribir Saldo';
   });
 
-  // Iniciar
+  // ==========================================
+  // 5. CARGAR OPERACIONES ACTIVAS EN VIVO
+  // ==========================================
+  async function cargarOperaciones() {
+    const list = document.getElementById('operaciones-list');
+    const { data, error } = await sb.from('open_positions').select('*').order('created_at', { ascending: false });
+    
+    if(error || !data || data.length === 0){
+      list.innerHTML = '<div class="empty">No hay operaciones abiertas en este momento.</div>';
+      return;
+    }
+
+    list.innerHTML = '';
+    data.forEach(op => {
+      const div = document.createElement('div');
+      div.className = 'list-item';
+      
+      const colorTipo = op.order_type === 'LONG' ? 'var(--up)' : 'var(--down)';
+      
+      div.innerHTML = `
+        <div class="list-info">
+          <strong>${op.symbol} <span style="font-size:11px;color:${colorTipo};border:1px solid ${colorTipo};padding:2px 4px;border-radius:4px;margin-left:4px">${op.order_type}</span></strong>
+          <span style="color:var(--muted)">Usuario ID: ${op.user_id.substring(0,8)}...</span><br>
+          <span style="font-size:12px;color:var(--gold);">Precio Entrada: $${op.open_price} | Lotes: ${op.quantity}</span>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-sm" style="background:var(--ink-2);border:1px solid var(--gold);color:var(--gold)" 
+                  onclick="alterarPrecio('${op.id}', '${op.symbol}', ${op.open_price})">
+            Manipular P&L
+          </button>
+        </div>
+      `;
+      list.appendChild(div);
+    });
+  }
+
+  // ==========================================
+  // 6. MODO DIOS: ALTERAR PRECIO DE ENTRADA
+  // ==========================================
+  async function alterarPrecio(positionId, symbol, currentPrice) {
+    const nuevoPrecio = prompt(`Vas a alterar el P&L de ${symbol}.\nPrecio de entrada actual: $${currentPrice}\n\nIngresa el NUEVO precio de entrada:`);
+    
+    if (!nuevoPrecio || isNaN(nuevoPrecio)) return;
+
+    const { data, error } = await sb.rpc('admin_update_open_price', {
+      p_position_id: positionId,
+      p_new_price: parseFloat(nuevoPrecio)
+    });
+
+    if (error) {
+      alert('Error al manipular la orden: ' + error.message);
+    } else {
+      alert(`¡Éxito! El precio de apertura cambió a $${nuevoPrecio}.`);
+      cargarOperaciones();
+    }
+  }
+
+  // ==========================================
+  // 7. INICIAR SISTEMA Y AUTO-REFRESH
+  // ==========================================
   if(typeof sb !== 'undefined'){
     cargarSolicitudes();
-    // Refrescar cada 10 segundos
-    setInterval(cargarSolicitudes, 10000); 
+    cargarOperaciones();
+    
+    // Refrescar paneles cada 10 segundos
+    setInterval(() => {
+      cargarSolicitudes();
+      cargarOperaciones();
+    }, 10000); 
   }
 </script>
 </body>
