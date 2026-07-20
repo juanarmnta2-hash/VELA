@@ -20,9 +20,7 @@
   .wrap{max-width:1100px;margin:0 auto;padding:40px 28px}
   .hello{font-family:var(--display);font-weight:600;font-size:clamp(24px,4vw,32px);color:#fff;letter-spacing:-.01em}
   .hello span{color:var(--gold)}
-  .welcome-sub{color:var(--muted);font-size:15px;margin-top:8px}
   .balance-card{background:linear-gradient(160deg,var(--ink-3),var(--ink-2));border:1px solid var(--line);border-radius:16px;padding:26px 28px;position:relative;overflow:hidden;margin-top:30px}
-  .balance-card::before{content:"";position:absolute;top:-40%;right:-10%;width:220px;height:220px;background:radial-gradient(circle,rgba(232,176,75,.12),transparent 65%);pointer-events:none}
   .card-label{font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
   .balance{font-family:var(--mono);font-weight:600;font-size:clamp(30px,5vw,42px);color:#fff;margin-top:10px}
   .balance small{font-size:20px;color:var(--muted)}
@@ -54,34 +52,35 @@
   .chg.up{color:var(--up)}
   .chg.down{color:var(--down)}
 
-  /* ESTILOS DE TRADING */
-  .pos-close-btn { background:transparent; border:1px solid var(--line); color:var(--text); padding:6px 12px; border-radius:6px; cursor:pointer; font-size:12px; transition:.2s; }
+  .pos-close-btn { background:transparent; border:1px solid var(--line); color:var(--text); padding:8px 16px; border-radius:6px; cursor:pointer; font-size:13px; font-weight:600; transition:.2s; }
   .pos-close-btn:hover { border-color:var(--down); background:var(--down); color:#fff; }
   
-  .modal{position:fixed;inset:0;background:rgba(5,8,14,.82);backdrop-filter:blur(6px);z-index:50;display:none;align-items:center;justify-content:center;padding:20px}
+  .modal{position:fixed;inset:0;background:rgba(5,8,14,.85);backdrop-filter:blur(8px);z-index:50;display:none;align-items:center;justify-content:center;padding:20px}
   .modal.open{display:flex}
   .modal-box{width:100%;max-width:1100px;height:85vh;background:var(--ink-2);border:1px solid var(--line);border-radius:16px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 40px 100px -30px rgba(0,0,0,.9)}
-  .modal-head{display:flex;align-items:center;justify-content:space-between;padding:16px 22px;border-bottom:1px solid var(--line); flex-wrap:wrap; gap:16px;}
-  .m-left{display:flex;align-items:center;gap:16px;}
-  .m-info { display:flex; flex-direction:column; }
-  .m-sym{font-family:var(--display);font-weight:600;font-size:19px;color:#fff}
-  .m-name{font-size:13px;color:var(--muted)}
-  .m-price-live{font-family:var(--mono); font-size:20px; font-weight:600; color:var(--gold);}
   
-  .trade-panel { display:flex; align-items:center; gap:10px; background:var(--ink-3); padding:8px 12px; border-radius:10px; border:1px solid var(--line); }
-  .trade-input { background:var(--ink); border:1px solid var(--line); color:#fff; padding:8px 12px; border-radius:6px; width:100px; font-family:var(--mono); outline:none; }
+  .modal-head{display:flex;align-items:center;justify-content:space-between;padding:20px 24px;border-bottom:1px solid var(--line);background:var(--ink-3);flex-wrap:wrap;gap:16px}
+  .m-left{display:flex;align-items:center;gap:24px;flex-wrap:wrap;flex:1}
+  .m-info { display:flex; flex-direction:column; gap:2px }
+  .m-sym{font-family:var(--display);font-weight:700;font-size:22px;color:#fff}
+  .m-name{font-size:13px;color:var(--muted)}
+  .m-price-live{font-family:var(--mono); font-size:22px; font-weight:600; color:var(--gold); min-width:120px}
+  
+  .trade-panel { display:flex; align-items:center; gap:12px; background:var(--ink); padding:6px 14px; border-radius:8px; border:1px solid var(--line); }
+  .trade-input { background:var(--ink-2); border:1px solid var(--line); color:#fff; padding:8px 12px; border-radius:6px; width:110px; font-family:var(--mono); font-size:14px; outline:none; text-align:center; }
   .trade-input:focus { border-color:var(--gold); }
-  .btn-buy { background:var(--up); color:var(--ink); border:none; padding:8px 16px; border-radius:6px; font-weight:600; cursor:pointer; transition:.2s; }
-  .btn-buy:hover { opacity:0.8; }
-  .btn-sell { background:var(--down); color:#fff; border:none; padding:8px 16px; border-radius:6px; font-weight:600; cursor:pointer; transition:.2s; }
-  .btn-sell:hover { opacity:0.8; }
+  .btn-buy { background:var(--up); color:var(--ink); border:none; padding:9px 18px; border-radius:6px; font-weight:600; font-size:13.5px; cursor:pointer; transition:.2s; }
+  .btn-buy:hover { opacity:0.9; transform:translateY(-1px); }
+  .btn-sell { background:var(--down); color:#fff; border:none; padding:9px 18px; border-radius:6px; font-weight:600; font-size:13.5px; cursor:pointer; transition:.2s; }
+  .btn-sell:hover { opacity:0.9; transform:translateY(-1px); }
 
-  .m-close{background:transparent;border:1px solid var(--line);color:var(--text);width:36px;height:36px;border-radius:9px;cursor:pointer;font-size:16px;transition:.2s}
+  .m-close{background:transparent;border:1px solid var(--line);color:var(--text);width:38px;height:38px;border-radius:8px;cursor:pointer;font-size:16px;transition:.2s;display:flex;align-items:center;justify-content:center}
   .m-close:hover{border-color:var(--down);color:var(--down)}
-  .tv-wrap{flex:1;min-height:0}
+  .tv-wrap{flex:1;min-height:0;background:var(--ink)}
 </style>
 </head>
 <body>
+
 <div class="topbar">
   <div class="logo"><span class="logo-mark"></span>VELA</div>
   <div class="top-right">
@@ -107,14 +106,12 @@
     </div>
   </div>
 
-  <!-- POSICIONES ABIERTAS -->
   <div class="markets" id="positions-container" style="display:none;">
     <div class="mk-head">
       <div class="mk-title">Posiciones Abiertas</div>
     </div>
     <div class="table" id="positions-table">
-      <!-- Se llena con JS -->
-    </div>
+      </div>
   </div>
 
   <div class="markets">
@@ -123,32 +120,33 @@
     </div>
     <div class="table" id="table">
       <div class="row head"><span>Activo</span><span>Precio / Variación</span></div>
-      <div class="row"><div class="skeleton">Cargando precios reales...</div></div>
+      <div class="row"><div style="padding:20px;color:var(--muted);font-size:14px;">Cargando mercados...</div></div>
     </div>
   </div>
 </div>
 
-<!-- MODAL DEL GRÁFICO Y TRADING -->
 <div class="modal" id="modal">
   <div class="modal-box">
     <div class="modal-head">
       <div class="m-left">
         <div class="m-info">
-            <span class="m-sym" id="m-sym"></span>
-            <span class="m-name" id="m-name"></span>
+            <span class="m-sym" id="m-sym">—</span>
+            <span class="m-name" id="m-name">—</span>
         </div>
-        <div class="m-price-live" id="m-price-live">Cargando...</div>
+        <div class="m-price-live" id="m-price-live">$0.00</div>
         
         <div class="trade-panel">
-            <span style="font-size:12px; color:var(--muted)">Inversión $</span>
+            <span style="font-size:12.5px; color:var(--muted); font-weight:500">Inversión USD:</span>
             <input type="number" id="trade-amount" class="trade-input" value="100" min="10">
-            <button class="btn-buy" id="btn-buy">Comprar (Long)</button>
-            <button class="btn-sell" id="btn-sell">Vender (Short)</button>
+            <button class="btn-buy" id="btn-buy">BUY (Long)</button>
+            <button class="btn-sell" id="btn-sell">SELL (Short)</button>
         </div>
       </div>
       <button class="m-close" id="m-close">✕</button>
     </div>
-    <div class="tv-wrap"><div class="tradingview-widget-container" id="tv_chart"></div></div>
+    <div class="tv-wrap">
+      <div class="tradingview-widget-container" id="tv_chart" style="width:100%;height:100%"></div>
+    </div>
   </div>
 </div>
 
@@ -176,25 +174,25 @@
     const user = session.user;
     userEmail = user.email;
     userId = user.id;
-    const name = (user.user_metadata && user.user_metadata.full_name) || user.email.split('@')[0];
-    document.getElementById('hello').textContent=name;
-    document.getElementById('email').textContent=user.email;
+    
+    document.getElementById('hello').textContent = (user.user_metadata && user.user_metadata.full_name) || user.email.split('@')[0];
+    document.getElementById('email').textContent = user.email;
 
-    // 1. AHORA LEEMOS DE USER_PORTFOLIOS
-    const { data: portfolioData, error } = await sb
+    // Cargar balance contable unificado
+    const { data: portfolioData } = await sb
       .from('user_portfolios')
       .select('balance')
       .eq('user_id', userId)
       .single();
 
     if (portfolioData) {
-      balance = portfolioData.balance;
+      balance = Number(portfolioData.balance);
     } else {
       balance = 0;
       await sb.from('user_portfolios').insert([{ user_id: userId, balance: 0 }]);
     }
     renderBalance();
-    loadPositions(); // Cargar operaciones activas
+    loadPositions();
   })();
   
   document.getElementById('logout').addEventListener('click', async ()=>{
@@ -208,23 +206,19 @@
     document.getElementById('balance').innerHTML = '$'+p[0]+'<small>.'+p[1]+'</small>';
   }
 
-  // ===== SISTEMA DE TRADING =====
-
-  // Abrir Operación
+  // Ejecución de órdenes del panel
   async function executeTrade(type) {
     const amount = Number(document.getElementById('trade-amount').value);
-    if(amount <= 0) return alert('Ingresa un monto válido.');
-    if(amount > balance) return alert('Saldo insuficiente.');
-    if(currentModalPrice <= 0) return alert('Esperando precio en vivo...');
+    if(amount <= 0 || isNaN(amount)) return alert('Ingresa un monto válido de inversión.');
+    if(amount > balance) return alert('Saldo insuficiente en tu cuenta.');
+    if(currentModalPrice <= 0) return alert('Sincronizando cotización de mercado en tiempo real...');
 
     const btn = type === 'BUY' ? document.getElementById('btn-buy') : document.getElementById('btn-sell');
     btn.disabled = true;
 
-    // 1. Restar el balance localmente para UI rápida
     balance -= amount;
     renderBalance();
 
-    // 2. Insertar en la tabla trades
     const { error: tradeError } = await sb.from('trades').insert([{
         user_id: userId,
         symbol: currentModalSymbol,
@@ -234,16 +228,14 @@
         status: 'OPEN'
     }]);
 
-    // 3. Actualizar balance en user_portfolios
     await sb.from('user_portfolios').update({ balance: balance }).eq('user_id', userId);
-
     btn.disabled = false;
     
     if(tradeError) {
-        alert('Error al abrir operación');
+        alert('Error operativo al registrar la orden.');
         console.error(tradeError);
     } else {
-        alert(`Operación ${type} abierta en ${currentModalSymbol} por $${amount}`);
+        alert(`Posición ejecutada: ${type} en ${currentModalSymbol} por $${amount} USD.`);
         closeChart();
         loadPositions();
     }
@@ -252,9 +244,9 @@
   document.getElementById('btn-buy').onclick = () => executeTrade('BUY');
   document.getElementById('btn-sell').onclick = () => executeTrade('SELL');
 
-  // Cargar Posiciones Abiertas
+  // Control e inyección de posiciones abiertas
   async function loadPositions() {
-    const { data: trades, error } = await sb
+    const { data: trades } = await sb
         .from('trades')
         .select('*')
         .eq('user_id', userId)
@@ -269,46 +261,44 @@
     }
 
     container.style.display = 'block';
-    let html = '<div class="row head"><span>Activo / Tipo</span><span>Inversión / Precio Entrada</span><span>Acción</span></div>';
+    let html = '<div class="row head"><span>Activo / Dirección</span><span>Inversión / Entrada</span><span>Acción</span></div>';
     
     trades.forEach(trade => {
-        const typeColor = trade.trade_type === 'BUY' ? 'var(--up)' : 'var(--down)';
+        const color = trade.trade_type === 'BUY' ? 'var(--up)' : 'var(--down)';
         html += `
         <div class="row data" style="cursor:default">
             <div class="asset">
                 <span class="sym">${trade.symbol}</span>
-                <span class="name" style="color:${typeColor}; font-weight:600">${trade.trade_type}</span>
+                <span class="name" style="color:${color}; font-weight:600; letter-spacing:0.05em">${trade.trade_type}</span>
             </div>
             <div class="right" style="text-align:left">
-                <span class="price">$${trade.amount}</span>
-                <span class="chg">Entrada: $${trade.entry_price}</span>
+                <span class="price">$${trade.amount.toLocaleString('es-MX')} USD</span>
+                <span class="chg" style="color:var(--muted)">Entrada: $${trade.entry_price}</span>
             </div>
             <div>
-                <button class="pos-close-btn" onclick="closeTrade('${trade.id}', '${trade.symbol}', '${trade.trade_type}', ${trade.entry_price}, ${trade.amount})">Cerrar</button>
+                <button class="pos-close-btn" onclick="closeTrade('${trade.id}', '${trade.symbol}', '${trade.trade_type}', ${trade.entry_price}, ${trade.amount})">Cerrar Operación</button>
             </div>
         </div>`;
     });
     table.innerHTML = html;
   }
 
-  // Cerrar Operación
+  // Cierre manual y liquidación contable de P&L
   async function closeTrade(tradeId, symbol, type, entryPrice, amount) {
-    // 1. Obtener precio actual para calcular ganancia/pérdida
     try {
         const res = await fetch("https://finnhub.io/api/v1/quote?symbol="+symbol+"&token="+FINNHUB_KEY);
         const q = await res.json();
         const closePrice = q.c;
         
-        if(!closePrice || closePrice === 0) return alert('No se pudo obtener el precio de mercado para cerrar.');
+        if(!closePrice || closePrice === 0) return alert('Error al obtener precio de liquidación.');
 
-        // Cálculo de PnL básico: Porcentaje de movimiento * Inversión
         const priceDiff = closePrice - entryPrice;
         const percentChange = priceDiff / entryPrice;
         
         let pnl = 0;
         if(type === 'BUY') {
             pnl = amount * percentChange;
-        } else { // SELL
+        } else {
             pnl = amount * -percentChange;
         }
 
@@ -316,7 +306,6 @@
         balance += montoRecuperado;
         renderBalance();
 
-        // Actualizar base de datos
         await sb.from('trades').update({
             status: 'CLOSED',
             close_price: closePrice,
@@ -325,15 +314,14 @@
 
         await sb.from('user_portfolios').update({ balance: balance }).eq('user_id', userId);
 
-        alert(`Operación cerrada.\nPrecio Cierre: $${closePrice}\nRetorno Total: $${montoRecuperado.toFixed(2)}`);
+        alert(`Liquidación completada.\nPrecio Cierre: $${closePrice}\nRetorno Neto: $${montoRecuperado.toFixed(2)} USD`);
         loadPositions();
-
     } catch(e) {
-        alert('Error conectando al mercado para cerrar.');
+        alert('Fallo de conexión al liquidar la operación.');
     }
   }
 
-  // ===== Mercados Finnhub =====
+  // Mercados informativos
   function fmt(n){ return Number(n).toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2}); }
   async function fetchQuote(sym){
     const r = await fetch("https://finnhub.io/api/v1/quote?symbol="+sym+"&token="+FINNHUB_KEY);
@@ -370,9 +358,8 @@
     }catch(e){}
   }
   loadMarkets();
-  setInterval(loadMarkets, 20000);
+  setInterval(loadMarkets, 25000);
 
-  // ===== Gráfico y Modal =====
   function openChart(sym, name, tv, currentPrice){
     currentModalSymbol = sym;
     currentModalPrice = currentPrice;
