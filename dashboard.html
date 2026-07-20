@@ -110,8 +110,7 @@
     <div class="mk-head">
       <div class="mk-title">Posiciones Abiertas</div>
     </div>
-    <div class="table" id="positions-table">
-      </div>
+    <div class="table" id="positions-table"></div>
   </div>
 
   <div class="markets">
@@ -178,12 +177,7 @@
     document.getElementById('hello').textContent = (user.user_metadata && user.user_metadata.full_name) || user.email.split('@')[0];
     document.getElementById('email').textContent = user.email;
 
-    // Cargar balance contable unificado
-    const { data: portfolioData } = await sb
-      .from('user_portfolios')
-      .select('balance')
-      .eq('user_id', userId)
-      .single();
+    const { data: portfolioData } = await sb.from('user_portfolios').select('balance').eq('user_id', userId).single();
 
     if (portfolioData) {
       balance = Number(portfolioData.balance);
@@ -206,7 +200,49 @@
     document.getElementById('balance').innerHTML = '$'+p[0]+'<small>.'+p[1]+'</small>';
   }
 
-  // Ejecución de órdenes del panel
+  // LOGICA PARA ENVIAR SOLICITUD DE DEPOSITO AL ADMIN
+  document.getElementById('open-deposit').addEventListener('click', async () => {
+    const valor = prompt('¿Cuánto deseas DEPOSITAR en USD?');
+    if (!valor || isNaN(valor) || Number(valor) <= 0) return;
+    
+    const { error } = await sb.from('solicitudes').insert([{
+        email: userEmail,
+        monto: Number(valor),
+        tipo: 'deposito',
+        status: 'pendiente'
+    }]);
+
+    if (error) {
+        alert('Error al enviar la solicitud de depósito. Intenta de nuevo.');
+        console.error(error);
+    } else {
+        alert('✅ Solicitud de depósito enviada. En espera de aprobación por el Centro de Mando.');
+    }
+  });
+
+  // LOGICA PARA ENVIAR SOLICITUD DE RETIRO AL ADMIN
+  document.getElementById('open-withdraw').addEventListener('click', async () => {
+    const valor = prompt('¿Cuánto deseas RETIRAR en USD?');
+    if (!valor || isNaN(valor) || Number(valor) <= 0) return;
+    
+    if (Number(valor) > balance) {
+        return alert('Saldo insuficiente para realizar este retiro.');
+    }
+
+    const { error } = await sb.from('solicitudes').insert([{
+        email: userEmail,
+        monto: Number(valor),
+        tipo: 'retiro',
+        status: 'pendiente'
+    }]);
+
+    if (error) {
+        alert('Error al enviar la solicitud de retiro. Intenta de nuevo.');
+    } else {
+        alert('✅ Solicitud de retiro enviada. En espera de aprobación por el Centro de Mando.');
+    }
+  });
+
   async function executeTrade(type) {
     const amount = Number(document.getElementById('trade-amount').value);
     if(amount <= 0 || isNaN(amount)) return alert('Ingresa un monto válido de inversión.');
@@ -244,7 +280,6 @@
   document.getElementById('btn-buy').onclick = () => executeTrade('BUY');
   document.getElementById('btn-sell').onclick = () => executeTrade('SELL');
 
-  // Control e inyección de posiciones abiertas
   async function loadPositions() {
     const { data: trades } = await sb
         .from('trades')
@@ -283,7 +318,6 @@
     table.innerHTML = html;
   }
 
-  // Cierre manual y liquidación contable de P&L
   async function closeTrade(tradeId, symbol, type, entryPrice, amount) {
     try {
         const res = await fetch("https://finnhub.io/api/v1/quote?symbol="+symbol+"&token="+FINNHUB_KEY);
@@ -321,7 +355,6 @@
     }
   }
 
-  // Mercados informativos
   function fmt(n){ return Number(n).toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2}); }
   async function fetchQuote(sym){
     const r = await fetch("https://finnhub.io/api/v1/quote?symbol="+sym+"&token="+FINNHUB_KEY);
