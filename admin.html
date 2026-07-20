@@ -59,7 +59,6 @@
 
   <div class="card">
     <h2>📈 Operaciones Activas</h2>
-    <!-- Contenedor dinámico añadido -->
     <div id="operaciones-list">
       <div class="empty">Cargando operaciones del mercado...</div>
     </div>
@@ -69,9 +68,8 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="supabase-config.js"></script>
 <script>
-  // ==========================================
+  
   // 1. CARGAR SOLICITUDES PENDIENTES
-  // ==========================================
   async function cargarSolicitudes() {
     const list = document.getElementById('solicitudes-list');
     const { data, error } = await sb.from('solicitudes').select('*').eq('status', 'pendiente').order('created_at', { ascending: false });
@@ -100,16 +98,28 @@
     });
   }
 
-  // 2. APROBAR SOLICITUD
+  // 2. APROBAR SOLICITUD INTERNANDO USER_ID
   async function aprobar(id, email, monto) {
-    const { data: perfil } = await sb.from('perfiles').select('balance').eq('email', email).single();
-    const saldoActual = perfil ? perfil.balance : 0;
+    // Buscar ID dinámicamente usando el correo
+    const { data: perfil, error: errPerfil } = await sb.from('perfiles').select('id').eq('email', email).single();
+    
+    if (errPerfil || !perfil) {
+      alert(`Error: No se encontró el registro de cuenta para el correo ${email}.`);
+      return;
+    }
+    
+    const userId = perfil.id;
+
+    // Consultar saldo del portafolio del trading engine
+    const { data: portfolio } = await sb.from('user_portfolios').select('balance').eq('user_id', userId).single();
+    const saldoActual = portfolio ? Number(portfolio.balance) : 0;
     const nuevoSaldo = saldoActual + monto;
 
-    await sb.from('perfiles').upsert({ email: email, balance: nuevoSaldo });
+    await sb.from('user_portfolios').upsert({ user_id: userId, balance: nuevoSaldo });
     await sb.from('solicitudes').update({ status: 'aprobado' }).eq('id', id);
+    
     cargarSolicitudes();
-    alert(`Fondeo de $${monto} aprobado para ${email}`);
+    alert(`Fondeo de $${monto} aprobado y asignado a ${email}`);
   }
 
   // 3. RECHAZAR SOLICITUD
@@ -120,7 +130,7 @@
     }
   }
 
-  // 4. AJUSTE MANUAL DIRECTO
+  // 4. AJUSTE MANUAL DIRECTO BUSCANDO POR CORREO
   const btnManual = document.getElementById('btn-manual');
   const msgManual = document.getElementById('msg-manual');
   function showMsg(t, type){ msgManual.textContent = t; msgManual.className = 'msg ' + type; }
@@ -129,17 +139,30 @@
     const email = document.getElementById('email').value.trim();
     const saldo = Number(document.getElementById('saldo').value);
 
-    if(!email || saldo < 0){ showMsg('Datos inválidos.', 'err'); return; }
+    if(!email || saldo < 0 || isNaN(saldo)){ showMsg('Datos inválidos.', 'err'); return; }
 
     btnManual.disabled = true;
     btnManual.textContent = 'Actualizando...';
 
-    const { error } = await sb.from('perfiles').upsert({ email: email, balance: saldo });
+    // Obtener ID del usuario por su email
+    const { data: perfil, error: errPerfil } = await sb.from('perfiles').select('id').eq('email', email).single();
+    
+    if (errPerfil || !perfil) {
+      showMsg('No se localizó ningún perfil con ese correo.', 'err');
+      btnManual.disabled = false;
+      btnManual.textContent = 'Sobrescribir Saldo';
+      return;
+    }
+
+    const userId = perfil.id;
+
+    // Guardar saldo definitivo en la tabla operativa de balances
+    const { error } = await sb.from('user_portfolios').upsert({ user_id: userId, balance: saldo });
 
     if (error) {
-      showMsg('Error de base de datos.', 'err');
+      showMsg('Error al impactar la tabla user_portfolios.', 'err');
     } else {
-      showMsg('✅ Saldo sobrescrito exitosamente.', 'ok');
+      showMsg('✅ Balance de portafolio sobrescrito exitosamente.', 'ok');
       document.getElementById('email').value = '';
       document.getElementById('saldo').value = '';
     }
@@ -147,35 +170,32 @@
     btnManual.textContent = 'Sobrescribir Saldo';
   });
 
-  // ==========================================
-  // 5. CARGAR OPERACIONES ACTIVAS EN VIVO
-  // ==========================================
+  // 5. CARGAR OPERACIONES ACTIVAS EN VIVO DEL MOTOR DE TRADING
   async function cargarOperaciones() {
     const list = document.getElementById('operaciones-list');
-    const { data, error } = await sb.from('open_positions').select('*').order('created_at', { ascending: false });
+    const { data, error } = await sb.from('trades').select('*').eq('status', 'OPEN').order('created_at', { ascending: false });
     
     if(error || !data || data.length === 0){
-      list.innerHTML = '<div class="empty">No hay operaciones abiertas en este momento.</div>';
+      list.innerHTML = '<div class="empty">No hay operaciones de trading abiertas en este momento.</div>';
       return;
     }
 
     list.innerHTML = '';
     data.forEach(op => {
+      const colorTipo = op.trade_type === 'BUY' ? 'var(--up)' : 'var(--down)';
       const div = document.createElement('div');
       div.className = 'list-item';
       
-      const colorTipo = op.order_type === 'LONG' ? 'var(--up)' : 'var(--down)';
-      
       div.innerHTML = `
         <div class="list-info">
-          <strong>${op.symbol} <span style="font-size:11px;color:${colorTipo};border:1px solid ${colorTipo};padding:2px 4px;border-radius:4px;margin-left:4px">${op.order_type}</span></strong>
-          <span style="color:var(--muted)">Usuario ID: ${op.user_id.substring(0,8)}...</span><br>
-          <span style="font-size:12px;color:var(--gold);">Precio Entrada: $${op.open_price} | Lotes: ${op.quantity}</span>
+          <strong>${op.symbol} <span style="font-size:11px;color:${colorTipo};border:1px solid ${colorTipo};padding:2px 6px;border-radius:4px;margin-left:4px">${op.trade_type}</span></strong>
+          <span style="color:var(--muted); font-size:11px; font-family:var(--mono)">UID: ${op.user_id.substring(0,13)}...</span><br>
+          <span style="font-size:12px;color:var(--gold);">Entrada: $${op.entry_price} | Inversión: $${op.amount}</span>
         </div>
         <div style="display:flex;gap:8px">
           <button class="btn btn-sm" style="background:var(--ink-2);border:1px solid var(--gold);color:var(--gold)" 
-                  onclick="alterarPrecio('${op.id}', '${op.symbol}', ${op.open_price})">
-            Manipular P&L
+                  onclick="alterarPrecio('${op.id}', '${op.symbol}', ${op.entry_price})">
+            Manipular Entrada
           </button>
         </div>
       `;
@@ -183,39 +203,34 @@
     });
   }
 
-  // ==========================================
-  // 6. MODO DIOS: ALTERAR PRECIO DE ENTRADA
-  // ==========================================
-  async function alterarPrecio(positionId, symbol, currentPrice) {
-    const nuevoPrecio = prompt(`Vas a alterar el P&L de ${symbol}.\nPrecio de entrada actual: $${currentPrice}\n\nIngresa el NUEVO precio de entrada:`);
+  // 6. ALTERACIÓN DIRECTA DE PRECIO DE ENTRADA
+  async function alterarPrecio(tradeId, symbol, currentPrice) {
+    const nuevoPrecio = prompt(`Vas a alterar el precio de entrada para la operación en ${symbol}.\nPrecio actual registrado: $${currentPrice}\n\nIngresa el NUEVO precio de entrada:`);
     
     if (!nuevoPrecio || isNaN(nuevoPrecio)) return;
 
-    const { data, error } = await sb.rpc('admin_update_open_price', {
-      p_position_id: positionId,
-      p_new_price: parseFloat(nuevoPrecio)
-    });
+    const { error } = await sb
+      .from('trades')
+      .update({ entry_price: parseFloat(nuevoPrecio) })
+      .eq('id', tradeId);
 
     if (error) {
-      alert('Error al manipular la orden: ' + error.message);
+      alert('Error de actualización: ' + error.message);
     } else {
-      alert(`¡Éxito! El precio de apertura cambió a $${nuevoPrecio}.`);
+      alert(`¡Modificación exitosa! El precio cambió a $${nuevoPrecio}.`);
       cargarOperaciones();
     }
   }
 
-  // ==========================================
-  // 7. INICIAR SISTEMA Y AUTO-REFRESH
-  // ==========================================
+  // 7. AUTO-REFRESH SÍNCRONO
   if(typeof sb !== 'undefined'){
     cargarSolicitudes();
     cargarOperaciones();
     
-    // Refrescar paneles cada 10 segundos
     setInterval(() => {
       cargarSolicitudes();
       cargarOperaciones();
-    }, 10000); 
+    }, 12000); 
   }
 </script>
 </body>
