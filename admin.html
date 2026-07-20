@@ -40,13 +40,15 @@
 </div>
 
 <div class="grid">
+  <!-- 1. SOLICITUDES -->
   <div class="card">
-    <h2>📥 Solicitudes de Fondeo</h2>
+    <h2>📥 Solicitudes Pendientes</h2>
     <div id="solicitudes-list">
       <div class="empty">Cargando solicitudes...</div>
     </div>
   </div>
 
+  <!-- 2. CONTROL MANUAL POR CORREO -->
   <div class="card">
     <h2>⚡ Ajuste Manual de Saldo</h2>
     <label>Correo del usuario</label>
@@ -57,6 +59,7 @@
     <div class="msg" id="msg-manual"></div>
   </div>
 
+  <!-- 3. OPERACIONES ACTIVAS DE TRADING -->
   <div class="card">
     <h2>📈 Operaciones Activas</h2>
     <div id="operaciones-list">
@@ -81,16 +84,19 @@
 
     list.innerHTML = '';
     data.forEach(req => {
+      const isRetiro = (req.tipo || '').toLowerCase() === 'retiro';
+      const colorTipo = isRetiro ? 'var(--down)' : 'var(--up)';
+      
       const div = document.createElement('div');
       div.className = 'list-item';
       div.innerHTML = `
         <div class="list-info">
           <strong>$${req.monto.toLocaleString('es-MX')}</strong>
           <span style="color:var(--muted)">${req.email}</span><br>
-          <span style="font-size:11px;color:var(--gold);text-transform:uppercase">${req.tipo}</span>
+          <span style="font-size:11px;color:${colorTipo};text-transform:uppercase;border:1px solid ${colorTipo};padding:2px 4px;border-radius:4px;display:inline-block;margin-top:4px">${req.tipo}</span>
         </div>
         <div style="display:flex;gap:8px">
-          <button class="btn btn-sm btn-green" onclick="aprobar(${req.id}, '${req.email}', ${req.monto})">Aprobar</button>
+          <button class="btn btn-sm btn-green" onclick="aprobar(${req.id}, '${req.email}', ${req.monto}, '${req.tipo}')">Aprobar</button>
           <button class="btn btn-sm btn-red" onclick="rechazar(${req.id})">Rechazar</button>
         </div>
       `;
@@ -98,9 +104,8 @@
     });
   }
 
-  // 2. APROBAR SOLICITUD INTERNANDO USER_ID
-  async function aprobar(id, email, monto) {
-    // Buscar ID dinámicamente usando el correo
+  // 2. APROBAR SOLICITUD (Suma si es depósito, Resta si es retiro)
+  async function aprobar(id, email, monto, tipo) {
     const { data: perfil, error: errPerfil } = await sb.from('perfiles').select('id').eq('email', email).single();
     
     if (errPerfil || !perfil) {
@@ -110,27 +115,46 @@
     
     const userId = perfil.id;
 
-    // Consultar saldo del portafolio del trading engine
+    // Buscar balance actual
     const { data: portfolio } = await sb.from('user_portfolios').select('balance').eq('user_id', userId).single();
     const saldoActual = portfolio ? Number(portfolio.balance) : 0;
-    const nuevoSaldo = saldoActual + monto;
+    
+    // Lógica matemática
+    let nuevoSaldo = saldoActual;
+    const tipoNormalizado = (tipo || 'deposito').toLowerCase();
 
-    await sb.from('user_portfolios').upsert({ user_id: userId, balance: nuevoSaldo });
+    if (tipoNormalizado === 'retiro') {
+        if (saldoActual < monto) {
+            alert(`ATENCIÓN: El usuario solo tiene $${saldoActual}. No se le puede retirar $${monto}.`);
+            return;
+        }
+        nuevoSaldo = saldoActual - monto;
+    } else {
+        nuevoSaldo = saldoActual + monto;
+    }
+
+    // Actualizar o insertar según exista el portfolio
+    if (portfolio) {
+        await sb.from('user_portfolios').update({ balance: nuevoSaldo }).eq('user_id', userId);
+    } else {
+        await sb.from('user_portfolios').insert([{ user_id: userId, balance: nuevoSaldo }]);
+    }
+    
     await sb.from('solicitudes').update({ status: 'aprobado' }).eq('id', id);
     
     cargarSolicitudes();
-    alert(`Fondeo de $${monto} aprobado y asignado a ${email}`);
+    alert(`✅ ${tipoNormalizado.toUpperCase()} de $${monto} aprobado para ${email}`);
   }
 
   // 3. RECHAZAR SOLICITUD
   async function rechazar(id) {
-    if(confirm("¿Seguro que deseas rechazar este fondeo?")){
+    if(confirm("¿Seguro que deseas rechazar esta solicitud?")){
       await sb.from('solicitudes').update({ status: 'rechazado' }).eq('id', id);
       cargarSolicitudes();
     }
   }
 
-  // 4. AJUSTE MANUAL DIRECTO BUSCANDO POR CORREO
+  // 4. AJUSTE MANUAL DIRECTO BUSCANDO POR CORREO (Reparado para evitar errores de llave primaria)
   const btnManual = document.getElementById('btn-manual');
   const msgManual = document.getElementById('msg-manual');
   function showMsg(t, type){ msgManual.textContent = t; msgManual.className = 'msg ' + type; }
@@ -142,30 +166,38 @@
     if(!email || saldo < 0 || isNaN(saldo)){ showMsg('Datos inválidos.', 'err'); return; }
 
     btnManual.disabled = true;
-    btnManual.textContent = 'Actualizando...';
+    btnManual.textContent = 'Buscando perfil...';
 
-    // Obtener ID del usuario por su email
+    // 1. Encontrar ID
     const { data: perfil, error: errPerfil } = await sb.from('perfiles').select('id').eq('email', email).single();
-    
     if (errPerfil || !perfil) {
       showMsg('No se localizó ningún perfil con ese correo.', 'err');
       btnManual.disabled = false;
       btnManual.textContent = 'Sobrescribir Saldo';
       return;
     }
-
     const userId = perfil.id;
 
-    // Guardar saldo definitivo en la tabla operativa de balances
-    const { error } = await sb.from('user_portfolios').upsert({ user_id: userId, balance: saldo });
+    // 2. Verificar si ya tiene tabla de portafolio creada
+    const { data: portfolio } = await sb.from('user_portfolios').select('id').eq('user_id', userId).single();
+    
+    let resError = null;
+    if (portfolio) {
+        const { error } = await sb.from('user_portfolios').update({ balance: saldo }).eq('user_id', userId);
+        resError = error;
+    } else {
+        const { error } = await sb.from('user_portfolios').insert([{ user_id: userId, balance: saldo }]);
+        resError = error;
+    }
 
-    if (error) {
-      showMsg('Error al impactar la tabla user_portfolios.', 'err');
+    if (resError) {
+      showMsg('Error en la base de datos: ' + resError.message, 'err');
     } else {
       showMsg('✅ Balance de portafolio sobrescrito exitosamente.', 'ok');
       document.getElementById('email').value = '';
       document.getElementById('saldo').value = '';
     }
+    
     btnManual.disabled = false;
     btnManual.textContent = 'Sobrescribir Saldo';
   });
@@ -205,7 +237,7 @@
 
   // 6. ALTERACIÓN DIRECTA DE PRECIO DE ENTRADA
   async function alterarPrecio(tradeId, symbol, currentPrice) {
-    const nuevoPrecio = prompt(`Vas a alterar el precio de entrada para la operación en ${symbol}.\nPrecio actual registrado: $${currentPrice}\n\nIngresa el NUEVO precio de entrada:`);
+    const nuevoPrecio = prompt(`Vas a alterar el precio de entrada para la operación en ${symbol}.\nPrecio actual registrado: $${currentPrice}\n\nIngresa el NUEVO precio de entrada para generar P&L forzado:`);
     
     if (!nuevoPrecio || isNaN(nuevoPrecio)) return;
 
