@@ -177,13 +177,13 @@
     document.getElementById('hello').textContent = (user.user_metadata && user.user_metadata.full_name) || user.email.split('@')[0];
     document.getElementById('email').textContent = user.email;
 
-    const { data: portfolioData } = await sb.from('user_portfolios').select('balance').eq('user_id', userId).single();
+    // LEYENDO DIRECTAMENTE DE LA TABLA PERFILES
+    const { data: perfilData } = await sb.from('perfiles').select('balance').eq('email', userEmail).single();
 
-    if (portfolioData) {
-      balance = Number(portfolioData.balance);
+    if (perfilData && perfilData.balance !== null) {
+      balance = Number(perfilData.balance);
     } else {
       balance = 0;
-      await sb.from('user_portfolios').insert([{ user_id: userId, balance: 0 }]);
     }
     renderBalance();
     loadPositions();
@@ -200,7 +200,6 @@
     document.getElementById('balance').innerHTML = '$'+p[0]+'<small>.'+p[1]+'</small>';
   }
 
-  // LOGICA PARA ENVIAR SOLICITUD DE DEPOSITO AL ADMIN
   document.getElementById('open-deposit').addEventListener('click', async () => {
     const valor = prompt('¿Cuánto deseas DEPOSITAR en USD?');
     if (!valor || isNaN(valor) || Number(valor) <= 0) return;
@@ -220,7 +219,6 @@
     }
   });
 
-  // LOGICA PARA ENVIAR SOLICITUD DE RETIRO AL ADMIN
   document.getElementById('open-withdraw').addEventListener('click', async () => {
     const valor = prompt('¿Cuánto deseas RETIRAR en USD?');
     if (!valor || isNaN(valor) || Number(valor) <= 0) return;
@@ -264,7 +262,8 @@
         status: 'OPEN'
     }]);
 
-    await sb.from('user_portfolios').update({ balance: balance }).eq('user_id', userId);
+    // ACTUALIZANDO DIRECTO EN PERFILES
+    await sb.from('perfiles').update({ balance: balance }).eq('email', userEmail);
     btn.disabled = false;
     
     if(tradeError) {
@@ -346,7 +345,8 @@
             pnl: pnl
         }).eq('id', tradeId);
 
-        await sb.from('user_portfolios').update({ balance: balance }).eq('user_id', userId);
+        // ACTUALIZANDO DIRECTO EN PERFILES
+        await sb.from('perfiles').update({ balance: balance }).eq('email', userEmail);
 
         alert(`Liquidación completada.\nPrecio Cierre: $${closePrice}\nRetorno Neto: $${montoRecuperado.toFixed(2)} USD`);
         loadPositions();
