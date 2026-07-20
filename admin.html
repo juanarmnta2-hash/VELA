@@ -104,22 +104,16 @@
     });
   }
 
-  // 2. APROBAR SOLICITUD (Suma si es depósito, Resta si es retiro)
+  // 2. APROBAR SOLICITUD DIRECTO EN TABLA PERFILES
   async function aprobar(id, email, monto, tipo) {
-    const { data: perfil, error: errPerfil } = await sb.from('perfiles').select('id').eq('email', email).single();
+    const { data: perfil, error: errPerfil } = await sb.from('perfiles').select('balance').eq('email', email).single();
     
     if (errPerfil || !perfil) {
-      alert(`Error: No se encontró el registro de cuenta para el correo ${email}.`);
+      alert(`Error: No se encontró la cuenta para el correo ${email}.`);
       return;
     }
     
-    const userId = perfil.id;
-
-    // Buscar balance actual
-    const { data: portfolio } = await sb.from('user_portfolios').select('balance').eq('user_id', userId).single();
-    const saldoActual = portfolio ? Number(portfolio.balance) : 0;
-    
-    // Lógica matemática
+    const saldoActual = perfil.balance ? Number(perfil.balance) : 0;
     let nuevoSaldo = saldoActual;
     const tipoNormalizado = (tipo || 'deposito').toLowerCase();
 
@@ -133,15 +127,15 @@
         nuevoSaldo = saldoActual + monto;
     }
 
-    // Actualizar o insertar según exista el portfolio
-    if (portfolio) {
-        await sb.from('user_portfolios').update({ balance: nuevoSaldo }).eq('user_id', userId);
-    } else {
-        await sb.from('user_portfolios').insert([{ user_id: userId, balance: nuevoSaldo }]);
+    // Actualiza directamente en la tabla perfiles
+    const { error: updateError } = await sb.from('perfiles').update({ balance: nuevoSaldo }).eq('email', email);
+    
+    if (updateError) {
+        alert('Error al actualizar el saldo: ' + updateError.message);
+        return;
     }
-    
+
     await sb.from('solicitudes').update({ status: 'aprobado' }).eq('id', id);
-    
     cargarSolicitudes();
     alert(`✅ ${tipoNormalizado.toUpperCase()} de $${monto} aprobado para ${email}`);
   }
@@ -154,7 +148,7 @@
     }
   }
 
-  // 4. AJUSTE MANUAL DIRECTO BUSCANDO POR CORREO (Reparado para evitar errores de llave primaria)
+  // 4. AJUSTE MANUAL DIRECTO EN TABLA PERFILES
   const btnManual = document.getElementById('btn-manual');
   const msgManual = document.getElementById('msg-manual');
   function showMsg(t, type){ msgManual.textContent = t; msgManual.className = 'msg ' + type; }
@@ -166,34 +160,24 @@
     if(!email || saldo < 0 || isNaN(saldo)){ showMsg('Datos inválidos.', 'err'); return; }
 
     btnManual.disabled = true;
-    btnManual.textContent = 'Buscando perfil...';
+    btnManual.textContent = 'Actualizando...';
 
-    // 1. Encontrar ID
+    // Verificamos si existe y actualizamos de una vez en la misma tabla UNRESTRICTED
     const { data: perfil, error: errPerfil } = await sb.from('perfiles').select('id').eq('email', email).single();
+    
     if (errPerfil || !perfil) {
       showMsg('No se localizó ningún perfil con ese correo.', 'err');
       btnManual.disabled = false;
       btnManual.textContent = 'Sobrescribir Saldo';
       return;
     }
-    const userId = perfil.id;
 
-    // 2. Verificar si ya tiene tabla de portafolio creada
-    const { data: portfolio } = await sb.from('user_portfolios').select('id').eq('user_id', userId).single();
-    
-    let resError = null;
-    if (portfolio) {
-        const { error } = await sb.from('user_portfolios').update({ balance: saldo }).eq('user_id', userId);
-        resError = error;
-    } else {
-        const { error } = await sb.from('user_portfolios').insert([{ user_id: userId, balance: saldo }]);
-        resError = error;
-    }
+    const { error } = await sb.from('perfiles').update({ balance: saldo }).eq('email', email);
 
-    if (resError) {
-      showMsg('Error en la base de datos: ' + resError.message, 'err');
+    if (error) {
+      showMsg('Error en la base de datos: ' + error.message, 'err');
     } else {
-      showMsg('✅ Balance de portafolio sobrescrito exitosamente.', 'ok');
+      showMsg('✅ Balance actualizado exitosamente en el perfil.', 'ok');
       document.getElementById('email').value = '';
       document.getElementById('saldo').value = '';
     }
@@ -202,7 +186,7 @@
     btnManual.textContent = 'Sobrescribir Saldo';
   });
 
-  // 5. CARGAR OPERACIONES ACTIVAS EN VIVO DEL MOTOR DE TRADING
+  // 5. CARGAR OPERACIONES ACTIVAS
   async function cargarOperaciones() {
     const list = document.getElementById('operaciones-list');
     const { data, error } = await sb.from('trades').select('*').eq('status', 'OPEN').order('created_at', { ascending: false });
@@ -254,7 +238,6 @@
     }
   }
 
-  // 7. AUTO-REFRESH SÍNCRONO
   if(typeof sb !== 'undefined'){
     cargarSolicitudes();
     cargarOperaciones();
